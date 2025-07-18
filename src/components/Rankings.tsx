@@ -88,7 +88,7 @@ export const Rankings = () => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-primary mb-2">Classifica ATP</h2>
+        <h2 className="text-3xl font-bold text-primary mb-2">Classifica Country Club Alcamo</h2>
         <p className="text-primary/70">Classifica aggiornata in tempo reale</p>
       </div>
 
