@@ -45,7 +45,7 @@ export const Rankings = () => {
     if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
     if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
     if (rank === 3) return <Award className="h-5 w-5 text-amber-600" />;
-    return <span className="text-lg font-bold text-green-700">{rank}</span>;
+    return <span className="text-lg font-bold text-primary">{rank}</span>;
   };
 
   const getTrendIcon = (trend: 'up' | 'down' | 'same') => {
@@ -73,16 +73,16 @@ export const Rankings = () => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-green-800 mb-2">Classifica ATP</h2>
-        <p className="text-green-600">Classifica aggiornata in tempo reale</p>
+        <h2 className="text-3xl font-bold text-primary mb-2">Classifica ATP</h2>
+        <p className="text-primary/70">Classifica aggiornata in tempo reale</p>
       </div>
 
       {rankedPlayers.length === 0 ? (
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Trophy className="h-16 w-16 text-green-300 mb-4" />
-            <h3 className="text-xl font-semibold text-green-800 mb-2">Nessun giocatore registrato</h3>
-            <p className="text-green-600 text-center">
+            <Trophy className="h-16 w-16 text-primary/30 mb-4" />
+            <h3 className="text-xl font-semibold text-primary mb-2">Nessun giocatore registrato</h3>
+            <p className="text-primary/70 text-center">
               Aggiungi dei giocatori nella sezione "Giocatori" per vedere la classifica.
             </p>
           </CardContent>
@@ -90,26 +90,26 @@ export const Rankings = () => {
       ) : (
         <div className="grid gap-4">
           {rankedPlayers.map((player) => (
-            <Card key={player.id} className="border-green-200 hover:shadow-lg transition-shadow animate-fade-in">
+            <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow animate-fade-in">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 bg-green-50 rounded-lg">
+                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg">
                     {getRankIcon(player.rank)}
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl font-bold text-green-800">
+                      <h3 className="text-xl font-bold text-primary">
                         {player.firstName} {player.lastName}
                       </h3>
                       <span className="text-lg">{getCountryFlag(player.nationality)}</span>
                       {getTrendIcon(player.trend)}
                     </div>
-                    <p className="text-green-600">{player.nationality}</p>
+                    <p className="text-primary/70">{player.nationality}</p>
                   </div>
                   
                   <div className="text-right">
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-3 py-1">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary text-lg px-3 py-1">
                       {player.points.toLocaleString()} pts
                     </Badge>
                     {player.previousRank && (
@@ -126,27 +126,27 @@ export const Rankings = () => {
       )}
 
       {rankedPlayers.length > 0 && (
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="text-green-800">Statistiche Classifica</CardTitle>
+            <CardTitle className="text-primary">Statistiche Classifica</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-700">{rankedPlayers.length}</p>
-                <p className="text-green-600">Giocatori Totali</p>
+                <p className="text-2xl font-bold text-primary">{rankedPlayers.length}</p>
+                <p className="text-primary/70">Giocatori Totali</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-700">
+                <p className="text-2xl font-bold text-primary">
                   {Math.max(...rankedPlayers.map(p => p.points)).toLocaleString()}
                 </p>
-                <p className="text-green-600">Punti Leader</p>
+                <p className="text-primary/70">Punti Leader</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-700">
+                <p className="text-2xl font-bold text-primary">
                   {Math.round(rankedPlayers.reduce((sum, p) => sum + p.points, 0) / rankedPlayers.length).toLocaleString()}
                 </p>
-                <p className="text-green-600">Media Punti</p>
+                <p className="text-primary/70">Media Punti</p>
               </div>
             </div>
           </CardContent>
