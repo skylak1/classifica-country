@@ -42,14 +42,32 @@ export const Rankings = () => {
   }, [players]);
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
-    if (rank === 3) return <Award className="h-5 w-5 text-amber-600" />;
-    return <span className="text-lg font-bold text-primary">{rank}</span>;
+    if (rank === 1) return <Trophy className="h-8 w-8 text-yellow-500" />;
+    if (rank === 2) return <Medal className="h-8 w-8 text-gray-400" />;
+    if (rank === 3) return <Award className="h-8 w-8 text-amber-600" />;
+    return null;
+  };
+
+  const getRankDisplay = (rank: number) => {
+    const icon = getRankIcon(rank);
+    if (icon) {
+      return (
+        <div className="flex flex-col items-center gap-1">
+          {icon}
+          <span className="text-2xl font-black text-primary">{rank}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="text-4xl font-black text-primary bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center border-4 border-primary/20">
+        {rank}
+      </div>
+    );
   };
 
   const getTrendIcon = (trend: 'up' | 'down' | 'same') => {
-    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-primary" />;
     if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-500" />;
     return <Minus className="h-4 w-4 text-gray-400" />;
   };
@@ -68,6 +86,13 @@ export const Rankings = () => {
       'Giappone': '🇯🇵'
     };
     return flags[nationality] || '🏳️';
+  };
+
+  const getCardStyle = (rank: number) => {
+    if (rank === 1) return "border-yellow-400 bg-gradient-to-r from-yellow-50 to-yellow-100 shadow-lg";
+    if (rank === 2) return "border-gray-400 bg-gradient-to-r from-gray-50 to-gray-100 shadow-md";
+    if (rank === 3) return "border-amber-400 bg-gradient-to-r from-amber-50 to-amber-100 shadow-md";
+    return "border-primary/20 hover:shadow-lg transition-shadow";
   };
 
   return (
@@ -90,30 +115,30 @@ export const Rankings = () => {
       ) : (
         <div className="grid gap-4">
           {rankedPlayers.map((player) => (
-            <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow animate-fade-in">
+            <Card key={player.id} className={`${getCardStyle(player.rank)} animate-fade-in`}>
               <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg">
-                    {getRankIcon(player.rank)}
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0">
+                    {getRankDisplay(player.rank)}
                   </div>
                   
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl font-bold text-primary">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-2xl font-bold text-primary">
                         {player.firstName} {player.lastName}
                       </h3>
-                      <span className="text-lg">{getCountryFlag(player.nationality)}</span>
+                      <span className="text-2xl">{getCountryFlag(player.nationality)}</span>
                       {getTrendIcon(player.trend)}
                     </div>
-                    <p className="text-primary/70">{player.nationality}</p>
+                    <p className="text-primary/70 text-lg">{player.nationality}</p>
                   </div>
                   
-                  <div className="text-right">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary text-lg px-3 py-1">
+                  <div className="text-right flex-shrink-0">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary text-xl px-4 py-2 font-bold">
                       {player.points.toLocaleString()} pts
                     </Badge>
                     {player.previousRank && (
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-2">
                         Era #{player.previousRank}
                       </p>
                     )}
