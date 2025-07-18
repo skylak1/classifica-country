@@ -110,29 +110,30 @@ export const Rankings = () => {
         <div className="grid gap-4">
           {rankedPlayers.map((player) => (
             <Card key={player.id} className={`${getCardStyle(player.rank)} animate-fade-in`}>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-6">
-                  <div className="flex-shrink-0">
-                    {getRankDisplay(player.rank)}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-2xl font-bold text-primary">
-                        {player.first_name} {player.last_name}
-                      </h3>
-                      <span className="text-2xl">{getCountryFlag(player.nationality)}</span>
-                      {getTrendIcon(player.trend)}
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="flex-shrink-0">
+                      {getRankDisplay(player.rank)}
                     </div>
-                    <p className="text-primary/70 text-lg">{player.nationality}</p>
+                    <div className="flex-1 sm:flex-initial">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg md:text-2xl font-bold text-primary break-words">
+                          {player.first_name} {player.last_name}
+                        </h3>
+                        <span className="text-lg md:text-2xl">{getCountryFlag(player.nationality)}</span>
+                        {getTrendIcon(player.trend)}
+                      </div>
+                      <p className="text-primary/70 text-sm md:text-lg">{player.nationality}</p>
+                    </div>
                   </div>
                   
-                  <div className="text-right flex-shrink-0">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary text-xl px-4 py-2 font-bold">
+                  <div className="text-left sm:text-right w-full sm:w-auto sm:flex-shrink-0">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary text-lg md:text-xl px-3 md:px-4 py-1 md:py-2 font-bold">
                       {player.points.toLocaleString()} pts
                     </Badge>
                     {player.previous_rank && (
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
                         Era #{player.previous_rank}
                       </p>
                     )}

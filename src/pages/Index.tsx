@@ -89,19 +89,19 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-primary/20 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="relative">
                 <img 
                   src="/lovable-uploads/3bc61267-ab37-409e-816f-cd8142967548.png" 
                   alt="Tennis Country Club Alcamo" 
-                  className="h-14 w-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-white/50"
+                  className="h-10 md:h-14 w-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-white/50"
                 />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-primary">Tennis Rankings</h1>
-                <p className="text-sm text-primary/70">Sistema di Classifica Country Club</p>
+                <h1 className="text-lg md:text-2xl font-bold text-primary">Tennis Rankings</h1>
+                <p className="text-xs md:text-sm text-primary/70 hidden sm:block">Sistema di Classifica Country Club</p>
               </div>
             </div>
             <div className="hidden md:flex items-center gap-2">
@@ -167,15 +167,15 @@ const Index = () => {
       </header>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden bg-white border-b border-primary/20 px-4 py-2">
-        <div className="flex gap-1 overflow-x-auto">
+      <div className="md:hidden bg-white border-b border-primary/20 px-4 py-3">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           <Button
-            size="sm"
+            size="default"
             variant={activeTab === 'rankings' ? 'default' : 'ghost'}
             onClick={() => handleTabChange('rankings')}
-            className="whitespace-nowrap"
+            className="whitespace-nowrap min-h-[44px] px-4 text-sm"
           >
-            <Trophy className="h-4 w-4 mr-1" />
+            <Trophy className="h-4 w-4 mr-2" />
             Classifica
           </Button>
           
@@ -183,30 +183,30 @@ const Index = () => {
           {isAuthenticated && (
             <>
               <Button
-                size="sm"
+                size="default"
                 variant={activeTab === 'players' ? 'default' : 'ghost'}
                 onClick={() => handleTabChange('players')}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
               >
-                <Users className="h-4 w-4 mr-1" />
+                <Users className="h-4 w-4 mr-2" />
                 Giocatori
               </Button>
               <Button
-                size="sm"
+                size="default"
                 variant={activeTab === 'matches' ? 'default' : 'ghost'}
                 onClick={() => handleTabChange('matches')}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
               >
-                <Calendar className="h-4 w-4 mr-1" />
+                <Calendar className="h-4 w-4 mr-2" />
                 Partite
               </Button>
               <Button
-                size="sm"
+                size="default"
                 variant={activeTab === 'admin' ? 'default' : 'ghost'}
                 onClick={() => handleTabChange('admin')}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
               >
-                <Shield className="h-4 w-4 mr-1" />
+                <Shield className="h-4 w-4 mr-2" />
                 Admin
               </Button>
             </>
@@ -215,23 +215,23 @@ const Index = () => {
           {/* Pulsante di accesso/logout mobile */}
           {isAuthenticated ? (
             <Button
-              size="sm"
+              size="default"
               variant="outline"
               onClick={handleLogout}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap min-h-[44px] px-4"
               title="Logout dalle sezioni protette"
             >
               <LogOut className="h-4 w-4" />
             </Button>
           ) : (
             <Button
-              size="sm"
+              size="default"
               variant="default"
               onClick={() => handleTabChange('login')}
-              className="whitespace-nowrap bg-amber-600 hover:bg-amber-700"
+              className="whitespace-nowrap bg-amber-600 hover:bg-amber-700 min-h-[44px] px-4 text-sm"
               title="Accedi alle sezioni amministrative"
             >
-              <Lock className="h-4 w-4 mr-1" />
+              <Lock className="h-4 w-4 mr-2" />
               Admin
             </Button>
           )}

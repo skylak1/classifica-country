@@ -117,12 +117,12 @@ export const PlayerManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-primary">Gestione Giocatori</h2>
-          <p className="text-primary/70">Aggiungi e gestisci i giocatori del circuito</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary">Gestione Giocatori</h2>
+          <p className="text-primary/70 text-sm md:text-base">Aggiungi e gestisci i giocatori del circuito</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => setShowForm(true)} className="min-h-[44px] px-4 w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuovo Giocatore
         </Button>
@@ -219,26 +219,26 @@ export const PlayerManagement = () => {
           <div className="grid gap-4">
             {players.map((player) => (
               <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="text-4xl">{getCountryFlag(player.nationality)}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-primary">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <div className="text-2xl md:text-4xl">{getCountryFlag(player.nationality)}</div>
+                      <div className="flex-1 sm:flex-initial">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
+                          <h3 className="text-lg md:text-xl font-bold text-primary break-words">
                             {player.first_name} {player.last_name}
                           </h3>
-                          <span className="text-xl">{getCountryFlag(player.nationality)}</span>
+                          <span className="text-lg md:text-xl hidden sm:inline">{getCountryFlag(player.nationality)}</span>
                         </div>
-                        <p className="text-primary/70">{player.nationality}</p>
-                        <p className="text-sm text-primary/60">
+                        <p className="text-primary/70 text-sm md:text-base">{player.nationality}</p>
+                        <p className="text-xs md:text-sm text-primary/60">
                           {calculateAge(player.birth_date)} anni • Nato il {new Date(player.birth_date).toLocaleDateString('it-IT')}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary text-lg px-3 py-1 font-bold">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary text-sm md:text-lg px-2 md:px-3 py-1 font-bold">
                         {player.points.toLocaleString()} pts
                       </Badge>
                       <div className="flex gap-2">
@@ -246,16 +246,19 @@ export const PlayerManagement = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleEdit(player)}
+                          className="min-h-[44px] px-4"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4 mr-1 sm:mr-0" />
+                          <span className="sm:hidden">Modifica</span>
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleDelete(player.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 min-h-[44px] px-4"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 mr-1 sm:mr-0" />
+                          <span className="sm:hidden">Elimina</span>
                         </Button>
                       </div>
                     </div>
