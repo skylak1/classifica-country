@@ -97,6 +97,31 @@ export const useMatches = () => {
     }
   };
 
+  const deleteAllMatches = async () => {
+    try {
+      const { error } = await supabase
+        .from('matches')
+        .delete()
+        .neq('id', ''); // This deletes all rows
+
+      if (error) throw error;
+      
+      await fetchMatches(); // Refresh the list
+      toast({
+        title: "Successo",
+        description: "Tutte le partite sono state eliminate"
+      });
+    } catch (error) {
+      console.error('Error deleting all matches:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare tutte le partite",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchMatches();
   }, []);
@@ -105,6 +130,7 @@ export const useMatches = () => {
     matches,
     loading,
     addMatch,
+    deleteAllMatches,
     refetch: fetchMatches
   };
 };

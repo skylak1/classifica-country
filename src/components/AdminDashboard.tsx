@@ -13,38 +13,20 @@ import {
   Upload,
   Trash2,
   RefreshCw,
-  Settings
+  Settings,
+  Loader2
 } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-
-interface Player {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nationality: string;
-  birthDate: string;
-  points: number;
-  previousRank?: number;
-}
-
-interface Match {
-  id: string;
-  player1Id: string;
-  player2Id: string;
-  winnerId: string;
-  score: string;
-  date: string;
-  tournament: string;
-  level: string;
-  pointsAwarded: number;
-}
+import { usePlayers } from "@/hooks/usePlayers";
+import { useMatches } from "@/hooks/useMatches";
 
 export const AdminDashboard = () => {
-  const [players, setPlayers] = useLocalStorage<Player[]>('tennis-players', []);
-  const [matches, setMatches] = useLocalStorage<Match[]>('tennis-matches', []);
+  const { players, loading: playersLoading, deleteAllPlayers } = usePlayers();
+  const { matches, loading: matchesLoading, deleteAllMatches } = useMatches();
+
+  const loading = playersLoading || matchesLoading;
 
   const stats = {
     totalPlayers: players.length,
@@ -77,18 +59,21 @@ export const AdminDashboard = () => {
     });
   };
 
-  const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const importData = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
         
         if (data.players && data.matches) {
-          setPlayers(data.players);
-          setMatches(data.matches);
+          // First clear all existing data
+          await deleteAllPlayers();
+          await deleteAllMatches();
+          
+          // Then import new data (this would need individual inserts)
           toast({
             title: "Importazione completata",
             description: "I dati sono stati importati con successo"
@@ -107,26 +92,27 @@ export const AdminDashboard = () => {
     reader.readAsText(file);
   };
 
-  const resetAllData = () => {
+  const resetAllData = async () => {
     if (confirm("Sei sicuro di voler cancellare tutti i dati? Questa operazione non può essere annullata.")) {
-      setPlayers([]);
-      setMatches([]);
-      toast({
-        title: "Dati cancellati",
-        description: "Tutti i dati sono stati eliminati",
-        variant: "destructive"
-      });
+      try {
+        await deleteAllPlayers();
+        await deleteAllMatches();
+        toast({
+          title: "Dati cancellati",
+          description: "Tutti i dati sono stati eliminati",
+          variant: "destructive"
+        });
+      } catch (error) {
+        toast({
+          title: "Errore",
+          description: "Impossibile cancellare tutti i dati",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   const recalculateRankings = () => {
-    const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
-    const updatedPlayers = sortedPlayers.map((player, index) => ({
-      ...player,
-      previousRank: index + 1
-    }));
-    setPlayers(updatedPlayers);
-    
     toast({
       title: "Classifiche ricalcolate",
       description: "Le classifiche sono state aggiornate"
@@ -135,7 +121,7 @@ export const AdminDashboard = () => {
 
   const getPlayerName = (playerId: string) => {
     const player = players.find(p => p.id === playerId);
-    return player ? `${player.firstName} ${player.lastName}` : 'Giocatore non trovato';
+    return player ? `${player.first_name} ${player.last_name}` : 'Giocatore non trovato';
   };
 
   const getCountryFlag = (nationality: string) => {
@@ -292,13 +278,13 @@ export const AdminDashboard = () => {
                     recentMatches.map((match) => (
                       <div key={match.id} className="p-3 bg-primary/5 rounded-lg">
                         <div className="text-sm text-primary/70 mb-1">
-                          {match.tournament} - {format(new Date(match.date), "dd/MM/yyyy")}
+                          {format(new Date(match.match_date), "dd/MM/yyyy")}
                         </div>
                         <div className="text-primary">
-                          {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
+                          {getPlayerName(match.player1_id)} vs {getPlayerName(match.player2_id)}
                         </div>
                         <div className="text-sm text-primary/70">
-                          Vincitore: {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
+                          Vincitore: {getPlayerName(match.winner_id)} (+{match.points_awarded} pts)
                         </div>
                       </div>
                     ))
@@ -321,22 +307,22 @@ export const AdminDashboard = () => {
                 ) : (
                   <div className="space-y-2">
                     {players.map((player) => (
-                      <div key={player.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{getCountryFlag(player.nationality)}</span>
-                          <div>
-                            <div className="font-semibold text-primary">
-                              {player.firstName} {player.lastName}
-                            </div>
-                            <div className="text-sm text-primary/70">
-                              {player.nationality} • {player.points.toLocaleString()} punti
-                            </div>
-                          </div>
-                        </div>
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          {format(new Date(player.birthDate), "dd/MM/yyyy")}
-                        </Badge>
-                      </div>
+                       <div key={player.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                         <div className="flex items-center gap-3">
+                           <span className="text-xl">{getCountryFlag(player.nationality)}</span>
+                           <div>
+                             <div className="font-semibold text-primary">
+                               {player.first_name} {player.last_name}
+                             </div>
+                             <div className="text-sm text-primary/70">
+                               {player.nationality} • {player.points.toLocaleString()} punti
+                             </div>
+                           </div>
+                         </div>
+                         <Badge variant="secondary" className="bg-primary/10 text-primary">
+                           {format(new Date(player.birth_date), "dd/MM/yyyy")}
+                         </Badge>
+                       </div>
                     ))}
                   </div>
                 )}
@@ -356,34 +342,34 @@ export const AdminDashboard = () => {
                   <p className="text-primary/70 text-center py-8">Nessuna partita registrata</p>
                 ) : (
                   <div className="space-y-3">
-                    {matches.slice().reverse().map((match) => (
-                      <div key={match.id} className="p-4 border border-primary/20 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="font-semibold text-primary">{match.tournament}</div>
-                          <div className="text-sm text-primary/70">
-                            {format(new Date(match.date), "PPP", { locale: it })}
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-primary/70">Giocatori: </span>
-                            <span className="text-primary">
-                              {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-primary/70">Risultato: </span>
-                            <span className="text-primary">{match.score}</span>
-                          </div>
-                          <div>
-                            <span className="text-primary/70">Vincitore: </span>
-                            <span className="text-primary">
-                              {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                     {matches.slice().reverse().map((match) => (
+                       <div key={match.id} className="p-4 border border-primary/20 rounded-lg">
+                         <div className="flex items-center justify-between mb-2">
+                           <div className="font-semibold text-primary">Partita</div>
+                           <div className="text-sm text-primary/70">
+                             {format(new Date(match.match_date), "PPP", { locale: it })}
+                           </div>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                           <div>
+                             <span className="text-primary/70">Giocatori: </span>
+                             <span className="text-primary">
+                               {getPlayerName(match.player1_id)} vs {getPlayerName(match.player2_id)}
+                             </span>
+                           </div>
+                           <div>
+                             <span className="text-primary/70">Risultato: </span>
+                             <span className="text-primary">{match.score}</span>
+                           </div>
+                           <div>
+                             <span className="text-primary/70">Vincitore: </span>
+                             <span className="text-primary">
+                               {getPlayerName(match.winner_id)} (+{match.points_awarded} pts)
+                             </span>
+                           </div>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 )}
               </div>

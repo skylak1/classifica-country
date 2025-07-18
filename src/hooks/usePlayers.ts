@@ -117,6 +117,31 @@ export const usePlayers = () => {
     }
   };
 
+  const deleteAllPlayers = async () => {
+    try {
+      const { error } = await supabase
+        .from('players')
+        .delete()
+        .neq('id', ''); // This deletes all rows
+
+      if (error) throw error;
+      
+      await fetchPlayers(); // Refresh the list
+      toast({
+        title: "Successo",
+        description: "Tutti i giocatori sono stati eliminati"
+      });
+    } catch (error) {
+      console.error('Error deleting all players:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare tutti i giocatori",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchPlayers();
   }, []);
@@ -127,6 +152,7 @@ export const usePlayers = () => {
     addPlayer,
     updatePlayer,
     deletePlayer,
+    deleteAllPlayers,
     refetch: fetchPlayers
   };
 };
