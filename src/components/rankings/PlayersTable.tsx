@@ -46,132 +46,108 @@ export const PlayersTable = ({
   if (players.length === 0) return null;
 
   return (
-    <Card className="border-primary/20">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-primary flex items-center justify-between">
-          <span>📊 Posizioni {startingRank}+</span>
-          {totalPages > 1 && (
-            <span className="text-sm font-normal text-primary/70">
-              Pagina {currentPage} di {totalPages}
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-primary/5">
-                <TableHead className="w-16 text-center font-semibold">Pos.</TableHead>
-                <TableHead className="font-semibold">Giocatore</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold">Nazionalità</TableHead>
-                <TableHead className="text-center font-semibold">Trend</TableHead>
-                <TableHead className="text-right font-semibold">Punti</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {players.map((player, index) => (
-                <TableRow 
-                  key={player.id} 
-                  className="hover:bg-primary/5 transition-colors"
-                >
-                  <TableCell className="text-center font-semibold text-primary">
-                    {startingRank + index}
-                  </TableCell>
-                  <TableCell>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-primary">📊 Posizioni {startingRank}+</h3>
+        {totalPages > 1 && (
+          <span className="text-sm text-primary/70">
+            Pagina {currentPage} di {totalPages}
+          </span>
+        )}
+      </div>
+      <div className="grid gap-2">
+        {players.map((player, index) => (
+          <Card key={player.id} className="border-primary/20 hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
+                      <span className="text-sm font-bold text-primary">{startingRank + index}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-primary">
+                      <h4 className="font-semibold text-primary truncate">
                         {player.first_name} {player.last_name}
-                      </span>
-                      <span className="sm:hidden text-sm">
-                        {getCountryFlag(player.nationality)}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <div className="flex items-center gap-2">
-                      <span>{getCountryFlag(player.nationality)}</span>
-                      <span className="text-primary/70">{player.nationality}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
+                      </h4>
+                      <span className="text-sm">{getCountryFlag(player.nationality)}</span>
                       {getTrendIcon(player.trend)}
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold">
-                        {player.points.toLocaleString()}
-                      </Badge>
-                      {player.previous_rank && (
-                        <span className="text-xs text-gray-500">
-                          Era #{player.previous_rank}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10">
-            <div className="text-sm text-primary/70">
-              Mostrando {players.length} di {totalPages * 20} giocatori
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Precedente
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => onPageChange(pageNum)}
-                      className="w-8 h-8 p-0"
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
+                    <p className="text-xs text-primary/60 truncate">{player.nationality}</p>
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 text-right">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary text-sm px-2 py-1 font-semibold">
+                    {player.points.toLocaleString()}
+                  </Badge>
+                  {player.previous_rank && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Era #{player.previous_rank}
+                    </p>
+                  )}
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Successivo
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-muted/30 rounded-b-lg">
+          <div className="text-sm text-primary/70">
+            Mostrando {players.length} di {totalPages * 20} giocatori
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Precedente
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(pageNum)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Successivo
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
