@@ -1,19 +1,73 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Users, Calendar, BarChart3, Shield } from "lucide-react";
+import { Trophy, Users, Calendar, BarChart3, Shield, LogOut } from "lucide-react";
 import { PlayerManagement } from "@/components/PlayerManagement";
 import { MatchRegistration } from "@/components/MatchRegistration";
 import { Rankings } from "@/components/Rankings";
 import { AdminDashboard } from "@/components/AdminDashboard";
+import { PasswordProtection } from "@/components/PasswordProtection";
+import { useToast } from "@/hooks/use-toast";
 
 type ActiveTab = 'rankings' | 'players' | 'matches' | 'admin';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('rankings');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Controlla se l'utente è già autenticato
+    const authStatus = localStorage.getItem("tennis_admin_auth");
+    setIsAuthenticated(authStatus === "true");
+  }, []);
+
+  const protectedSections: ActiveTab[] = ['players', 'matches', 'admin'];
+
+  const handleTabChange = (tab: ActiveTab) => {
+    if (protectedSections.includes(tab) && !isAuthenticated) {
+      // Non cambiare tab, mostra il componente di protezione
+      setActiveTab(tab);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
+  const handleAuthenticated = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("tennis_admin_auth");
+    setIsAuthenticated(false);
+    setActiveTab('rankings');
+    toast({
+      title: "Logout effettuato",
+      description: "Sei stato disconnesso dalle sezioni protette",
+    });
+  };
+
+  const getSectionName = (tab: ActiveTab) => {
+    switch(tab) {
+      case 'players': return 'Giocatori';
+      case 'matches': return 'Partite';
+      case 'admin': return 'Admin';
+      default: return '';
+    }
+  };
 
   const renderContent = () => {
+    // Se la sezione è protetta e l'utente non è autenticato, mostra il componente di protezione
+    if (protectedSections.includes(activeTab) && !isAuthenticated) {
+      return (
+        <PasswordProtection
+          onAuthenticated={handleAuthenticated}
+          sectionName={getSectionName(activeTab)}
+        />
+      );
+    }
+
     switch(activeTab) {
       case 'rankings':
         return <Rankings />;
@@ -50,32 +104,54 @@ const Index = () => {
             <div className="hidden md:flex items-center gap-2">
               <Button
                 variant={activeTab === 'rankings' ? 'default' : 'ghost'}
-                onClick={() => setActiveTab('rankings')}
+                onClick={() => handleTabChange('rankings')}
               >
                 <Trophy className="h-4 w-4 mr-2" />
                 Classifica
               </Button>
               <Button
                 variant={activeTab === 'players' ? 'default' : 'ghost'}
-                onClick={() => setActiveTab('players')}
+                onClick={() => handleTabChange('players')}
+                className="relative"
               >
                 <Users className="h-4 w-4 mr-2" />
                 Giocatori
+                {protectedSections.includes('players') && (
+                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
+                )}
               </Button>
               <Button
                 variant={activeTab === 'matches' ? 'default' : 'ghost'}
-                onClick={() => setActiveTab('matches')}
+                onClick={() => handleTabChange('matches')}
+                className="relative"
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 Partite
+                {protectedSections.includes('matches') && (
+                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
+                )}
               </Button>
               <Button
                 variant={activeTab === 'admin' ? 'default' : 'ghost'}
-                onClick={() => setActiveTab('admin')}
+                onClick={() => handleTabChange('admin')}
+                className="relative"
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Admin
+                {protectedSections.includes('admin') && (
+                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
+                )}
               </Button>
+              {isAuthenticated && (
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="ml-2"
+                  title="Logout dalle sezioni protette"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -87,7 +163,7 @@ const Index = () => {
           <Button
             size="sm"
             variant={activeTab === 'rankings' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('rankings')}
+            onClick={() => handleTabChange('rankings')}
             className="whitespace-nowrap"
           >
             <Trophy className="h-4 w-4 mr-1" />
@@ -96,30 +172,50 @@ const Index = () => {
           <Button
             size="sm"
             variant={activeTab === 'players' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('players')}
-            className="whitespace-nowrap"
+            onClick={() => handleTabChange('players')}
+            className="whitespace-nowrap relative"
           >
             <Users className="h-4 w-4 mr-1" />
             Giocatori
+            {protectedSections.includes('players') && (
+              <Shield className="h-3 w-3 ml-1 text-amber-600" />
+            )}
           </Button>
           <Button
             size="sm"
             variant={activeTab === 'matches' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('matches')}
-            className="whitespace-nowrap"
+            onClick={() => handleTabChange('matches')}
+            className="whitespace-nowrap relative"
           >
             <Calendar className="h-4 w-4 mr-1" />
             Partite
+            {protectedSections.includes('matches') && (
+              <Shield className="h-3 w-3 ml-1 text-amber-600" />
+            )}
           </Button>
           <Button
             size="sm"
             variant={activeTab === 'admin' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('admin')}
-            className="whitespace-nowrap"
+            onClick={() => handleTabChange('admin')}
+            className="whitespace-nowrap relative"
           >
             <Shield className="h-4 w-4 mr-1" />
             Admin
+            {protectedSections.includes('admin') && (
+              <Shield className="h-3 w-3 ml-1 text-amber-600" />
+            )}
           </Button>
+          {isAuthenticated && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleLogout}
+              className="whitespace-nowrap"
+              title="Logout dalle sezioni protette"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
