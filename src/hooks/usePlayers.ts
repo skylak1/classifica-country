@@ -122,7 +122,7 @@ export const usePlayers = () => {
       const { error } = await supabase
         .from('players')
         .delete()
-        .neq('id', ''); // This deletes all rows
+        .gte('created_at', '1970-01-01'); // This deletes all rows
 
       if (error) throw error;
       
