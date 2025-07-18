@@ -6,9 +6,10 @@ import { Player } from "@/hooks/usePlayers";
 
 interface TopPlayersSectionProps {
   players: (Player & { rank: number; trend: 'up' | 'down' | 'same' })[];
+  isSearching?: boolean;
 }
 
-export const TopPlayersSection = ({ players }: TopPlayersSectionProps) => {
+export const TopPlayersSection = ({ players, isSearching = false }: TopPlayersSectionProps) => {
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-8 w-8 text-yellow-500" />;
     if (rank === 2) return <Medal className="h-8 w-8 text-gray-400" />;
@@ -65,7 +66,7 @@ export const TopPlayersSection = ({ players }: TopPlayersSectionProps) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-primary mb-4">🏆 Top 3 Giocatori</h3>
+      {!isSearching && <h3 className="text-xl font-semibold text-primary mb-4">🏆 Top 3 Giocatori</h3>}
       {players.map((player) => (
         <Card key={player.id} className={`${getCardStyle(player.rank)} animate-fade-in`}>
           <CardContent className="p-4 md:p-6">

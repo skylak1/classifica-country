@@ -129,9 +129,9 @@ export const RankingsOptimized = () => {
         </CardContent>
       </Card>
 
-      {/* Top 3 Players - Mantieni le card speciali */}
+      {/* Top 3 Players */}
       {topPlayers.length > 0 && (
-        <TopPlayersSection players={topPlayers} />
+        <TopPlayersSection players={topPlayers} isSearching={!!searchTerm} />
       )}
 
       {/* Positions 4-10 - Card compatte */}
