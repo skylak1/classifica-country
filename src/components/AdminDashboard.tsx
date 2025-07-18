@@ -23,8 +23,8 @@ import { usePlayers } from "@/hooks/usePlayers";
 import { useMatches } from "@/hooks/useMatches";
 
 export const AdminDashboard = () => {
-  const { players, loading: playersLoading, deleteAllPlayers } = usePlayers();
-  const { matches, loading: matchesLoading, deleteAllMatches } = useMatches();
+  const { players, loading: playersLoading, deleteAllPlayers, addPlayer, updatePlayer } = usePlayers();
+  const { matches, loading: matchesLoading, deleteAllMatches, addMatch } = useMatches();
 
   const loading = playersLoading || matchesLoading;
 
@@ -73,7 +73,18 @@ export const AdminDashboard = () => {
           await deleteAllPlayers();
           await deleteAllMatches();
           
-          // Then import new data (this would need individual inserts)
+          // Import players
+          for (const player of data.players) {
+            const { id, created_at, updated_at, ...playerData } = player;
+            await addPlayer(playerData);
+          }
+          
+          // Import matches
+          for (const match of data.matches) {
+            const { id, created_at, ...matchData } = match;
+            await addMatch(matchData);
+          }
+          
           toast({
             title: "Importazione completata",
             description: "I dati sono stati importati con successo"
@@ -90,6 +101,8 @@ export const AdminDashboard = () => {
       }
     };
     reader.readAsText(file);
+    // Reset input value to allow re-importing the same file
+    event.target.value = '';
   };
 
   const resetAllData = async () => {
@@ -112,11 +125,31 @@ export const AdminDashboard = () => {
     }
   };
 
-  const recalculateRankings = () => {
-    toast({
-      title: "Classifiche ricalcolate",
-      description: "Le classifiche sono state aggiornate"
-    });
+  const recalculateRankings = async () => {
+    try {
+      // Ordina i giocatori per punti e aggiorna i previous_rank
+      const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+      
+      for (let i = 0; i < sortedPlayers.length; i++) {
+        const player = sortedPlayers[i];
+        const newRank = i + 1;
+        
+        if (player.previous_rank !== newRank) {
+          await updatePlayer(player.id, { previous_rank: newRank });
+        }
+      }
+      
+      toast({
+        title: "Classifiche ricalcolate",
+        description: "I ranking sono stati aggiornati in base ai punti attuali"
+      });
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile ricalcolare le classifiche",
+        variant: "destructive"
+      });
+    }
   };
 
   const getPlayerName = (playerId: string) => {
@@ -155,21 +188,10 @@ export const AdminDashboard = () => {
           <p className="text-primary/70">Gestisci e monitora tutto il sistema di ranking</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={exportData}>
-            <Download className="h-4 w-4 mr-2" />
-            Esporta
+          <Button variant="outline" onClick={recalculateRankings}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Ricalcola
           </Button>
-          <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
-            <Upload className="h-4 w-4 mr-2" />
-            Importa
-          </Button>
-          <input
-            id="import-file"
-            type="file"
-            accept=".json"
-            onChange={importData}
-            className="hidden"
-          />
         </div>
       </div>
 
