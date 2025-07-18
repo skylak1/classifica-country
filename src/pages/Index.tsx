@@ -131,7 +131,7 @@ const Index = () => {
             <Trophy className="h-5 w-5" />
             <span className="font-semibold">Tennis Rankings</span>
           </div>
-          <p className="text-primary-foreground/80">Sistema professionale di gestione classifiche tennis Country Club</p>
+          <p className="text-primary-foreground/80">Sistema di gestione classifiche tennis Country Club Alcamo</p>
         </div>
       </footer>
     </div>
