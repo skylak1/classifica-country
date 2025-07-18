@@ -1,0 +1,454 @@
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Users, 
+  Calendar, 
+  Trophy, 
+  BarChart3, 
+  Download, 
+  Upload,
+  Trash2,
+  RefreshCw,
+  Settings
+} from "lucide-react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { toast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
+
+interface Player {
+  id: string;
+  firstName: string;
+  lastName: string;
+  nationality: string;
+  birthDate: string;
+  points: number;
+  previousRank?: number;
+}
+
+interface Match {
+  id: string;
+  player1Id: string;
+  player2Id: string;
+  winnerId: string;
+  score: string;
+  date: string;
+  tournament: string;
+  level: string;
+  pointsAwarded: number;
+}
+
+export const AdminDashboard = () => {
+  const [players, setPlayers] = useLocalStorage<Player[]>('tennis-players', []);
+  const [matches, setMatches] = useLocalStorage<Match[]>('tennis-matches', []);
+
+  const stats = {
+    totalPlayers: players.length,
+    totalMatches: matches.length,
+    totalPoints: players.reduce((sum, player) => sum + player.points, 0),
+    averagePoints: players.length > 0 ? Math.round(players.reduce((sum, player) => sum + player.points, 0) / players.length) : 0
+  };
+
+  const exportData = () => {
+    const data = {
+      players,
+      matches,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tennis-ranking-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Backup completato",
+      description: "I dati sono stati esportati con successo"
+    });
+  };
+
+  const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        
+        if (data.players && data.matches) {
+          setPlayers(data.players);
+          setMatches(data.matches);
+          toast({
+            title: "Importazione completata",
+            description: "I dati sono stati importati con successo"
+          });
+        } else {
+          throw new Error("Formato file non valido");
+        }
+      } catch (error) {
+        toast({
+          title: "Errore importazione",
+          description: "File non valido o corrotto",
+          variant: "destructive"
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const resetAllData = () => {
+    if (confirm("Sei sicuro di voler cancellare tutti i dati? Questa operazione non può essere annullata.")) {
+      setPlayers([]);
+      setMatches([]);
+      toast({
+        title: "Dati cancellati",
+        description: "Tutti i dati sono stati eliminati",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const recalculateRankings = () => {
+    const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+    const updatedPlayers = sortedPlayers.map((player, index) => ({
+      ...player,
+      previousRank: index + 1
+    }));
+    setPlayers(updatedPlayers);
+    
+    toast({
+      title: "Classifiche ricalcolate",
+      description: "Le classifiche sono state aggiornate"
+    });
+  };
+
+  const getPlayerName = (playerId: string) => {
+    const player = players.find(p => p.id === playerId);
+    return player ? `${player.firstName} ${player.lastName}` : 'Giocatore non trovato';
+  };
+
+  const getCountryFlag = (nationality: string) => {
+    const flags: { [key: string]: string } = {
+      'Italia': '🇮🇹',
+      'Spagna': '🇪🇸',
+      'Francia': '🇫🇷',
+      'Germania': '🇩🇪',
+      'Regno Unito': '🇬🇧',
+      'Stati Uniti': '🇺🇸',
+      'Argentina': '🇦🇷',
+      'Brasile': '🇧🇷',
+      'Australia': '🇦🇺',
+      'Giappone': '🇯🇵'
+    };
+    return flags[nationality] || '🏳️';
+  };
+
+  const topCountries = players.reduce((acc, player) => {
+    acc[player.nationality] = (acc[player.nationality] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const recentMatches = matches.slice(-5).reverse();
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-green-800">Dashboard Amministrativa</h2>
+          <p className="text-green-600">Gestisci e monitora tutto il sistema di ranking</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportData}>
+            <Download className="h-4 w-4 mr-2" />
+            Esporta
+          </Button>
+          <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
+            <Upload className="h-4 w-4 mr-2" />
+            Importa
+          </Button>
+          <input
+            id="import-file"
+            type="file"
+            accept=".json"
+            onChange={importData}
+            className="hidden"
+          />
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Users className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-green-600">Giocatori Totali</p>
+                <p className="text-2xl font-bold text-green-800">{stats.totalPlayers}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Calendar className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-green-600">Partite Registrate</p>
+                <p className="text-2xl font-bold text-green-800">{stats.totalMatches}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <Trophy className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm text-green-600">Punti Totali</p>
+                <p className="text-2xl font-bold text-green-800">{stats.totalPoints.toLocaleString()}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <BarChart3 className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-green-600">Media Punti</p>
+                <p className="text-2xl font-bold text-green-800">{stats.averagePoints.toLocaleString()}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Panoramica</TabsTrigger>
+          <TabsTrigger value="players">Giocatori</TabsTrigger>
+          <TabsTrigger value="matches">Partite</TabsTrigger>
+          <TabsTrigger value="settings">Impostazioni</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border-green-200">
+              <CardHeader>
+                <CardTitle className="text-green-800">Distribuzione per Nazionalità</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {Object.entries(topCountries)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5)
+                    .map(([country, count]) => (
+                      <div key={country} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span>{getCountryFlag(country)}</span>
+                          <span className="text-green-800">{country}</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          {count} giocatori
+                        </Badge>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-green-200">
+              <CardHeader>
+                <CardTitle className="text-green-800">Partite Recenti</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recentMatches.length === 0 ? (
+                    <p className="text-green-600 text-center py-4">Nessuna partita registrata</p>
+                  ) : (
+                    recentMatches.map((match) => (
+                      <div key={match.id} className="p-3 bg-green-50 rounded-lg">
+                        <div className="text-sm text-green-600 mb-1">
+                          {match.tournament} - {format(new Date(match.date), "dd/MM/yyyy")}
+                        </div>
+                        <div className="text-green-800">
+                          {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
+                        </div>
+                        <div className="text-sm text-green-600">
+                          Vincitore: {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="players" className="space-y-6">
+          <Card className="border-green-200">
+            <CardHeader>
+              <CardTitle className="text-green-800">Gestione Giocatori</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {players.length === 0 ? (
+                  <p className="text-green-600 text-center py-8">Nessun giocatore registrato</p>
+                ) : (
+                  <div className="space-y-2">
+                    {players.map((player) => (
+                      <div key={player.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{getCountryFlag(player.nationality)}</span>
+                          <div>
+                            <div className="font-semibold text-green-800">
+                              {player.firstName} {player.lastName}
+                            </div>
+                            <div className="text-sm text-green-600">
+                              {player.nationality} • {player.points.toLocaleString()} punti
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          {format(new Date(player.birthDate), "dd/MM/yyyy")}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="matches" className="space-y-6">
+          <Card className="border-green-200">
+            <CardHeader>
+              <CardTitle className="text-green-800">Storico Partite</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {matches.length === 0 ? (
+                  <p className="text-green-600 text-center py-8">Nessuna partita registrata</p>
+                ) : (
+                  <div className="space-y-3">
+                    {matches.slice().reverse().map((match) => (
+                      <div key={match.id} className="p-4 border border-green-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-semibold text-green-800">{match.tournament}</div>
+                          <div className="text-sm text-green-600">
+                            {format(new Date(match.date), "PPP", { locale: it })}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-green-600">Giocatori: </span>
+                            <span className="text-green-800">
+                              {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-green-600">Risultato: </span>
+                            <span className="text-green-800">{match.score}</span>
+                          </div>
+                          <div>
+                            <span className="text-green-600">Vincitore: </span>
+                            <span className="text-green-800">
+                              {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <Card className="border-green-200">
+            <CardHeader>
+              <CardTitle className="text-green-800">Gestione Sistema</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border border-green-200 rounded-lg">
+                <div>
+                  <h4 className="font-semibold text-green-800">Ricalcola Classifiche</h4>
+                  <p className="text-sm text-green-600">Aggiorna i ranking di tutti i giocatori</p>
+                </div>
+                <Button onClick={recalculateRankings} variant="outline">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Ricalcola
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
+                <div>
+                  <h4 className="font-semibold text-red-800">Reset Completo</h4>
+                  <p className="text-sm text-red-600">Elimina tutti i dati del sistema</p>
+                </div>
+                <Button onClick={resetAllData} variant="destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Reset
+                </Button>
+              </div>
+
+              <div className="p-4 border border-green-200 rounded-lg">
+                <h4 className="font-semibold text-green-800 mb-2">Backup e Ripristino</h4>
+                <p className="text-sm text-green-600 mb-4">
+                  Esporta i dati per creare un backup o importa un backup precedente
+                </p>
+                <div className="flex gap-2">
+                  <Button onClick={exportData} variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Esporta Backup
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => document.getElementById('import-file-settings')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Importa Backup
+                  </Button>
+                  <input
+                    id="import-file-settings"
+                    type="file"
+                    accept=".json"
+                    onChange={importData}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
