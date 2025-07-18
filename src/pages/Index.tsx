@@ -35,11 +35,13 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/3bc61267-ab37-409e-816f-cd8142967548.png" 
-                alt="Tennis Country Club Alcamo" 
-                className="h-12 w-auto"
-              />
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/3bc61267-ab37-409e-816f-cd8142967548.png" 
+                  alt="Tennis Country Club Alcamo" 
+                  className="h-14 w-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-white/50"
+                />
+              </div>
               <div>
                 <h1 className="text-2xl font-bold text-primary">Tennis Rankings</h1>
                 <p className="text-sm text-primary/70">Sistema di Classifica Country Club</p>
