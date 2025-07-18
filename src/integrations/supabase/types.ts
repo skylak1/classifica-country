@@ -14,7 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      matches: {
+        Row: {
+          created_at: string
+          id: string
+          match_date: string
+          player1_id: string
+          player2_id: string
+          points_awarded: number
+          score: string
+          winner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_date: string
+          player1_id: string
+          player2_id: string
+          points_awarded?: number
+          score: string
+          winner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_date?: string
+          player1_id?: string
+          player2_id?: string
+          points_awarded?: number
+          score?: string
+          winner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_player1_id_fkey"
+            columns: ["player1_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_player2_id_fkey"
+            columns: ["player2_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      players: {
+        Row: {
+          birth_date: string
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          nationality: string
+          points: number
+          previous_rank: number | null
+          updated_at: string
+        }
+        Insert: {
+          birth_date: string
+          created_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          nationality: string
+          points?: number
+          previous_rank?: number | null
+          updated_at?: string
+        }
+        Update: {
+          birth_date?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          nationality?: string
+          points?: number
+          previous_rank?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

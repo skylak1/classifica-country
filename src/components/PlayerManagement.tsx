@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,53 +5,43 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit2, UserPlus } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Plus, Edit, Trash2, User, Loader2 } from "lucide-react";
+import { usePlayers, Player } from "@/hooks/usePlayers";
 import { toast } from "@/hooks/use-toast";
 
-interface Player {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nationality: string;
-  birthDate: string;
-  points: number;
-  previousRank?: number;
-}
-
 export const PlayerManagement = () => {
-  const [players, setPlayers] = useLocalStorage<Player[]>('tennis-players', []);
+  const { players, loading, addPlayer, updatePlayer, deletePlayer } = usePlayers();
   const [showForm, setShowForm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     nationality: '',
-    birthDate: ''
+    birth_date: '',
+    points: 0
   });
 
   const nationalities = [
     'Italia', 'Spagna', 'Francia', 'Germania', 'Regno Unito', 
-    'Stati Uniti', 'Argentina', 'Brasile', 'Australia', 'Giappone',
-    'Svizzera', 'Austria', 'Belgio', 'Olanda', 'Repubblica Ceca',
-    'Russia', 'Serbia', 'Croazia', 'Grecia', 'Polonia'
+    'Stati Uniti', 'Argentina', 'Brasile', 'Australia', 'Giappone'
   ];
 
   const resetForm = () => {
     setFormData({
-      firstName: '',
-      lastName: '',
+      first_name: '',
+      last_name: '',
       nationality: '',
-      birthDate: ''
+      birth_date: '',
+      points: 0
     });
-    setEditingPlayer(null);
     setShowForm(false);
+    setEditingPlayer(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.lastName || !formData.nationality || !formData.birthDate) {
+    if (!formData.first_name || !formData.last_name || !formData.nationality || !formData.birth_date) {
       toast({
         title: "Errore",
         description: "Tutti i campi sono obbligatori",
@@ -61,57 +50,39 @@ export const PlayerManagement = () => {
       return;
     }
 
-    const playerData = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      nationality: formData.nationality,
-      birthDate: formData.birthDate,
-      points: editingPlayer?.points || 0
-    };
-
-    if (editingPlayer) {
-      setPlayers(players.map(p => 
-        p.id === editingPlayer.id 
-          ? { ...playerData, id: editingPlayer.id, previousRank: editingPlayer.previousRank }
-          : p
-      ));
-      toast({
-        title: "Successo",
-        description: "Giocatore modificato con successo"
-      });
-    } else {
-      const newPlayer: Player = {
-        ...playerData,
-        id: Date.now().toString()
-      };
-      setPlayers([...players, newPlayer]);
-      toast({
-        title: "Successo",
-        description: "Giocatore aggiunto con successo"
-      });
+    try {
+      if (editingPlayer) {
+        // Update existing player
+        await updatePlayer(editingPlayer.id, formData);
+      } else {
+        // Add new player
+        await addPlayer(formData);
+      }
+      resetForm();
+    } catch (error) {
+      // Error handling is done in the hooks
     }
-
-    resetForm();
   };
 
   const handleEdit = (player: Player) => {
     setEditingPlayer(player);
     setFormData({
-      firstName: player.firstName,
-      lastName: player.lastName,
+      first_name: player.first_name,
+      last_name: player.last_name,
       nationality: player.nationality,
-      birthDate: player.birthDate
+      birth_date: player.birth_date,
+      points: player.points
     });
     setShowForm(true);
   };
 
-  const handleDelete = (playerId: string) => {
-    if (confirm("Sei sicuro di voler eliminare questo giocatore?")) {
-      setPlayers(players.filter(p => p.id !== playerId));
-      toast({
-        title: "Successo",
-        description: "Giocatore eliminato con successo"
-      });
+  const handleDelete = async (playerId: string) => {
+    if (window.confirm('Sei sicuro di voler eliminare questo giocatore?')) {
+      try {
+        await deletePlayer(playerId);
+      } catch (error) {
+        // Error handling is done in the hook
+      }
     }
   };
 
@@ -126,29 +97,21 @@ export const PlayerManagement = () => {
       'Argentina': '🇦🇷',
       'Brasile': '🇧🇷',
       'Australia': '🇦🇺',
-      'Giappone': '🇯🇵',
-      'Svizzera': '🇨🇭',
-      'Austria': '🇦🇹',
-      'Belgio': '🇧🇪',
-      'Olanda': '🇳🇱',
-      'Repubblica Ceca': '🇨🇿',
-      'Russia': '🇷🇺',
-      'Serbia': '🇷🇸',
-      'Croazia': '🇭🇷',
-      'Grecia': '🇬🇷',
-      'Polonia': '🇵🇱'
+      'Giappone': '🇯🇵'
     };
     return flags[nationality] || '🏳️';
   };
 
-  const calculateAge = (birthDate: string) => {
+  const calculateAge = (birth_date: string) => {
     const today = new Date();
-    const birth = new Date(birthDate);
+    const birth = new Date(birth_date);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
+    
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
+    
     return age;
   };
 
@@ -159,10 +122,8 @@ export const PlayerManagement = () => {
           <h2 className="text-3xl font-bold text-primary">Gestione Giocatori</h2>
           <p className="text-primary/70">Aggiungi e gestisci i giocatori del circuito</p>
         </div>
-        <Button 
-          onClick={() => setShowForm(true)}
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
+        <Button onClick={() => setShowForm(true)}>
+          <Plus className="h-4 w-4 mr-2" />
           Nuovo Giocatore
         </Button>
       </div>
@@ -181,18 +142,18 @@ export const PlayerManagement = () => {
                   <Label htmlFor="firstName">Nome</Label>
                   <Input
                     id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                    placeholder="Inserisci il nome"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                    placeholder="Nome del giocatore"
                   />
                 </div>
                 <div>
                   <Label htmlFor="lastName">Cognome</Label>
                   <Input
                     id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                    placeholder="Inserisci il cognome"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                    placeholder="Cognome del giocatore"
                   />
                 </div>
               </div>
@@ -218,10 +179,9 @@ export const PlayerManagement = () => {
                   <Input
                     id="birthDate"
                     type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
+                    value={formData.birth_date}
+                    onChange={(e) => setFormData({...formData, birth_date: e.target.value})}
                     max={new Date().toISOString().split('T')[0]}
-                    min="1950-01-01"
                   />
                 </div>
               </div>
@@ -239,11 +199,16 @@ export const PlayerManagement = () => {
         </Card>
       )}
 
-      <div className="grid gap-4">
-        {players.length === 0 ? (
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold text-primary">Lista Giocatori</h3>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : players.length === 0 ? (
           <Card className="border-primary/20">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <UserPlus className="h-16 w-16 text-primary/30 mb-4" />
+              <User className="h-16 w-16 text-primary/30 mb-4" />
               <h3 className="text-xl font-semibold text-primary mb-2">Nessun giocatore registrato</h3>
               <p className="text-primary/70 text-center">
                 Clicca su "Nuovo Giocatore" per iniziare ad aggiungere giocatori al sistema.
@@ -251,51 +216,54 @@ export const PlayerManagement = () => {
             </CardContent>
           </Card>
         ) : (
-          players.map((player) => (
-            <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl">{getCountryFlag(player.nationality)}</div>
-                    <div>
-                      <h3 className="text-xl font-bold text-primary">
-                        {player.firstName} {player.lastName}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          {player.nationality}
-                        </Badge>
-                        <span className="text-primary/70">
-                          {calculateAge(player.birthDate)} anni
-                        </span>
-                        <span className="text-primary/70">•</span>
-                        <span className="text-primary/70">
-                          {player.points.toLocaleString()} punti ATP
-                        </span>
+          <div className="grid gap-4">
+            {players.map((player) => (
+              <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl">{getCountryFlag(player.nationality)}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-primary">
+                            {player.first_name} {player.last_name}
+                          </h3>
+                          <span className="text-xl">{getCountryFlag(player.nationality)}</span>
+                        </div>
+                        <p className="text-primary/70">{player.nationality}</p>
+                        <p className="text-sm text-primary/60">
+                          {calculateAge(player.birth_date)} anni • Nato il {new Date(player.birth_date).toLocaleDateString('it-IT')}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary text-lg px-3 py-1 font-bold">
+                        {player.points.toLocaleString()} pts
+                      </Badge>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(player)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(player.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(player)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDelete(player.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
     </div>

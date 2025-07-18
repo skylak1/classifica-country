@@ -5,60 +5,41 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trophy, Calendar as CalendarIcon2 } from "lucide-react";
+import { Plus, Trophy, Calendar as CalendarIcon2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { usePlayers, Player } from "@/hooks/usePlayers";
+import { useMatches, Match } from "@/hooks/useMatches";
 import { toast } from "@/hooks/use-toast";
 
-interface Player {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nationality: string;
-  birthDate: string;
-  points: number;
-  previousRank?: number;
-}
-
-interface Match {
-  id: string;
-  player1Id: string;
-  player2Id: string;
-  winnerId: string;
-  score: string;
-  date: string;
-  pointsAwarded: number;
-}
-
 export const MatchRegistration = () => {
-  const [players, setPlayers] = useLocalStorage<Player[]>('tennis-players', []);
-  const [matches, setMatches] = useLocalStorage<Match[]>('tennis-matches', []);
+  const { players, loading: playersLoading, refetch: refetchPlayers } = usePlayers();
+  const { matches, loading: matchesLoading, addMatch } = useMatches();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    player1Id: '',
-    player2Id: '',
-    winnerId: '',
+    player1_id: '',
+    player2_id: '',
+    winner_id: '',
     score: '',
-    date: ''
+    match_date: ''
   });
 
   const resetForm = () => {
     setFormData({
-      player1Id: '',
-      player2Id: '',
-      winnerId: '',
+      player1_id: '',
+      player2_id: '',
+      winner_id: '',
       score: '',
-      date: ''
+      match_date: ''
     });
     setShowForm(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.player1Id || !formData.player2Id || !formData.winnerId || 
-        !formData.score || !formData.date) {
+    if (!formData.player1_id || !formData.player2_id || !formData.winner_id || 
+        !formData.score || !formData.match_date) {
       toast({
         title: "Errore",
         description: "Tutti i campi sono obbligatori",
@@ -67,7 +48,7 @@ export const MatchRegistration = () => {
       return;
     }
 
-    if (formData.player1Id === formData.player2Id) {
+    if (formData.player1_id === formData.player2_id) {
       toast({
         title: "Errore",
         description: "Seleziona due giocatori diversi",
@@ -76,7 +57,7 @@ export const MatchRegistration = () => {
       return;
     }
 
-    if (formData.winnerId !== formData.player1Id && formData.winnerId !== formData.player2Id) {
+    if (formData.winner_id !== formData.player1_id && formData.winner_id !== formData.player2_id) {
       toast({
         title: "Errore",
         description: "Il vincitore deve essere uno dei due giocatori",
@@ -85,49 +66,27 @@ export const MatchRegistration = () => {
       return;
     }
 
-    // Punti fissi per semplicità
-    const pointsAwarded = 250;
+    try {
+      await addMatch({
+        player1_id: formData.player1_id,
+        player2_id: formData.player2_id,
+        winner_id: formData.winner_id,
+        score: formData.score,
+        match_date: formData.match_date,
+        points_awarded: 250
+      });
 
-    const newMatch: Match = {
-      id: Date.now().toString(),
-      player1Id: formData.player1Id,
-      player2Id: formData.player2Id,
-      winnerId: formData.winnerId,
-      score: formData.score,
-      date: formData.date,
-      pointsAwarded
-    };
-
-    setMatches([...matches, newMatch]);
-
-    // Update winner's points
-    setPlayers(players.map(player => {
-      if (player.id === formData.winnerId) {
-        return {
-          ...player,
-          previousRank: getCurrentRank(player.id),
-          points: player.points + pointsAwarded
-        };
-      }
-      return player;
-    }));
-
-    toast({
-      title: "Successo",
-      description: `Partita registrata! ${pointsAwarded} punti assegnati al vincitore.`
-    });
-
-    resetForm();
-  };
-
-  const getCurrentRank = (playerId: string) => {
-    const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
-    return sortedPlayers.findIndex(p => p.id === playerId) + 1;
+      // Refresh players to update rankings
+      await refetchPlayers();
+      resetForm();
+    } catch (error) {
+      // Error handling is done in the hook
+    }
   };
 
   const getPlayerName = (playerId: string) => {
     const player = players.find(p => p.id === playerId);
-    return player ? `${player.firstName} ${player.lastName}` : 'Giocatore non trovato';
+    return player ? `${player.first_name} ${player.last_name}` : 'Giocatore non trovato';
   };
 
   const getCountryFlag = (playerId: string) => {
@@ -165,7 +124,7 @@ export const MatchRegistration = () => {
         </Button>
       </div>
 
-      {players.length < 2 && (
+      {players.length < 2 && !playersLoading && (
         <Card className="border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
             <p className="text-yellow-800">
@@ -185,14 +144,14 @@ export const MatchRegistration = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Giocatore 1</Label>
-                  <Select value={formData.player1Id} onValueChange={(value) => setFormData({...formData, player1Id: value})}>
+                  <Select value={formData.player1_id} onValueChange={(value) => setFormData({...formData, player1_id: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona giocatore 1" />
                     </SelectTrigger>
                     <SelectContent>
                       {players.map((player) => (
                         <SelectItem key={player.id} value={player.id}>
-                          {getCountryFlag(player.id)} {player.firstName} {player.lastName}
+                          {getCountryFlag(player.id)} {player.first_name} {player.last_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -200,14 +159,14 @@ export const MatchRegistration = () => {
                 </div>
                 <div>
                   <Label>Giocatore 2</Label>
-                  <Select value={formData.player2Id} onValueChange={(value) => setFormData({...formData, player2Id: value})}>
+                  <Select value={formData.player2_id} onValueChange={(value) => setFormData({...formData, player2_id: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona giocatore 2" />
                     </SelectTrigger>
                     <SelectContent>
-                      {players.filter(p => p.id !== formData.player1Id).map((player) => (
+                      {players.filter(p => p.id !== formData.player1_id).map((player) => (
                         <SelectItem key={player.id} value={player.id}>
-                          {getCountryFlag(player.id)} {player.firstName} {player.lastName}
+                          {getCountryFlag(player.id)} {player.first_name} {player.last_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -218,12 +177,12 @@ export const MatchRegistration = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label>Vincitore</Label>
-                  <Select value={formData.winnerId} onValueChange={(value) => setFormData({...formData, winnerId: value})}>
+                  <Select value={formData.winner_id} onValueChange={(value) => setFormData({...formData, winner_id: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona vincitore" />
                     </SelectTrigger>
                     <SelectContent>
-                      {[formData.player1Id, formData.player2Id].filter(Boolean).map((playerId) => (
+                      {[formData.player1_id, formData.player2_id].filter(Boolean).map((playerId) => (
                         <SelectItem key={playerId} value={playerId}>
                           {getCountryFlag(playerId)} {getPlayerName(playerId)}
                         </SelectItem>
@@ -245,8 +204,8 @@ export const MatchRegistration = () => {
                   <Input
                     id="date"
                     type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    value={formData.match_date}
+                    onChange={(e) => setFormData({...formData, match_date: e.target.value})}
                     max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
@@ -267,7 +226,11 @@ export const MatchRegistration = () => {
 
       <div className="space-y-4">
         <h3 className="text-xl font-semibold text-primary">Storico Partite</h3>
-        {matches.length === 0 ? (
+        {matchesLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : matches.length === 0 ? (
           <Card className="border-primary/20">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CalendarIcon2 className="h-16 w-16 text-primary/30 mb-4" />
@@ -284,18 +247,18 @@ export const MatchRegistration = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-primary/70">
-                      {format(new Date(match.date), "PPP", { locale: it })}
+                      {format(new Date(match.match_date), "PPP", { locale: it })}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="text-center">
                         <div className="flex items-center gap-1">
-                          {getCountryFlag(match.player1Id)}
-                          <span className={match.winnerId === match.player1Id ? 'font-bold text-primary' : 'text-gray-600'}>
-                            {getPlayerName(match.player1Id)}
+                          {getCountryFlag(match.player1_id)}
+                          <span className={match.winner_id === match.player1_id ? 'font-bold text-primary' : 'text-gray-600'}>
+                            {getPlayerName(match.player1_id)}
                           </span>
-                          {match.winnerId === match.player1Id && <Trophy className="h-4 w-4 text-yellow-500" />}
+                          {match.winner_id === match.player1_id && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
                       </div>
                       <span className="text-lg font-mono bg-primary/10 px-2 py-1 rounded">
@@ -303,16 +266,16 @@ export const MatchRegistration = () => {
                       </span>
                       <div className="text-center">
                         <div className="flex items-center gap-1">
-                          {getCountryFlag(match.player2Id)}
-                          <span className={match.winnerId === match.player2Id ? 'font-bold text-primary' : 'text-gray-600'}>
-                            {getPlayerName(match.player2Id)}
+                          {getCountryFlag(match.player2_id)}
+                          <span className={match.winner_id === match.player2_id ? 'font-bold text-primary' : 'text-gray-600'}>
+                            {getPlayerName(match.player2_id)}
                           </span>
-                          {match.winnerId === match.player2Id && <Trophy className="h-4 w-4 text-yellow-500" />}
+                          {match.winner_id === match.player2_id && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
                       </div>
                     </div>
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
-                      +{match.pointsAwarded} pts
+                      +{match.points_awarded} pts
                     </Badge>
                   </div>
                 </CardContent>

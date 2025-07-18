@@ -2,21 +2,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-
-interface Player {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nationality: string;
-  birthDate: string;
-  points: number;
-  previousRank?: number;
-}
+import { Trophy, Medal, Award, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react";
+import { usePlayers, Player } from "@/hooks/usePlayers";
 
 export const Rankings = () => {
-  const [players] = useLocalStorage<Player[]>('tennis-players', []);
+  const { players, loading } = usePlayers();
   const [rankedPlayers, setRankedPlayers] = useState<(Player & { rank: number; trend: 'up' | 'down' | 'same' })[]>([]);
 
   useEffect(() => {
@@ -26,9 +16,9 @@ export const Rankings = () => {
         const currentRank = index + 1;
         let trend: 'up' | 'down' | 'same' = 'same';
         
-        if (player.previousRank) {
-          if (currentRank < player.previousRank) trend = 'up';
-          else if (currentRank > player.previousRank) trend = 'down';
+        if (player.previous_rank) {
+          if (currentRank < player.previous_rank) trend = 'up';
+          else if (currentRank > player.previous_rank) trend = 'down';
         }
 
         return {
@@ -102,7 +92,11 @@ export const Rankings = () => {
         <p className="text-primary/70">Classifica aggiornata in tempo reale</p>
       </div>
 
-      {rankedPlayers.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : rankedPlayers.length === 0 ? (
         <Card className="border-primary/20">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Trophy className="h-16 w-16 text-primary/30 mb-4" />
@@ -125,7 +119,7 @@ export const Rankings = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-2xl font-bold text-primary">
-                        {player.firstName} {player.lastName}
+                        {player.first_name} {player.last_name}
                       </h3>
                       <span className="text-2xl">{getCountryFlag(player.nationality)}</span>
                       {getTrendIcon(player.trend)}
@@ -137,9 +131,9 @@ export const Rankings = () => {
                     <Badge variant="secondary" className="bg-primary/10 text-primary text-xl px-4 py-2 font-bold">
                       {player.points.toLocaleString()} pts
                     </Badge>
-                    {player.previousRank && (
+                    {player.previous_rank && (
                       <p className="text-sm text-gray-500 mt-2">
-                        Era #{player.previousRank}
+                        Era #{player.previous_rank}
                       </p>
                     )}
                   </div>
