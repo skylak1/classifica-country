@@ -165,8 +165,8 @@ export const AdminDashboard = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-green-800">Dashboard Amministrativa</h2>
-          <p className="text-green-600">Gestisci e monitora tutto il sistema di ranking</p>
+          <h2 className="text-3xl font-bold text-primary">Dashboard Amministrativa</h2>
+          <p className="text-primary/70">Gestisci e monitora tutto il sistema di ranking</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportData}>
@@ -189,57 +189,57 @@ export const AdminDashboard = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <Users className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-green-600">Giocatori Totali</p>
-                <p className="text-2xl font-bold text-green-800">{stats.totalPlayers}</p>
+                <p className="text-sm text-primary/70">Giocatori Totali</p>
+                <p className="text-2xl font-bold text-primary">{stats.totalPlayers}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Calendar className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-green-600">Partite Registrate</p>
-                <p className="text-2xl font-bold text-green-800">{stats.totalMatches}</p>
+                <p className="text-sm text-primary/70">Partite Registrate</p>
+                <p className="text-2xl font-bold text-primary">{stats.totalMatches}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-yellow-100 rounded-lg">
                 <Trophy className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-green-600">Punti Totali</p>
-                <p className="text-2xl font-bold text-green-800">{stats.totalPoints.toLocaleString()}</p>
+                <p className="text-sm text-primary/70">Punti Totali</p>
+                <p className="text-2xl font-bold text-primary">{stats.totalPoints.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-purple-100 rounded-lg">
                 <BarChart3 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-green-600">Media Punti</p>
-                <p className="text-2xl font-bold text-green-800">{stats.averagePoints.toLocaleString()}</p>
+                <p className="text-sm text-primary/70">Media Punti</p>
+                <p className="text-2xl font-bold text-primary">{stats.averagePoints.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -256,9 +256,9 @@ export const AdminDashboard = () => {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-green-200">
+            <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle className="text-green-800">Distribuzione per Nazionalità</CardTitle>
+                <CardTitle className="text-primary">Distribuzione per Nazionalità</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -269,9 +269,9 @@ export const AdminDashboard = () => {
                       <div key={country} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span>{getCountryFlag(country)}</span>
-                          <span className="text-green-800">{country}</span>
+                          <span className="text-primary">{country}</span>
                         </div>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {count} giocatori
                         </Badge>
                       </div>
@@ -280,24 +280,24 @@ export const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-green-200">
+            <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle className="text-green-800">Partite Recenti</CardTitle>
+                <CardTitle className="text-primary">Partite Recenti</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {recentMatches.length === 0 ? (
-                    <p className="text-green-600 text-center py-4">Nessuna partita registrata</p>
+                    <p className="text-primary/70 text-center py-4">Nessuna partita registrata</p>
                   ) : (
                     recentMatches.map((match) => (
-                      <div key={match.id} className="p-3 bg-green-50 rounded-lg">
-                        <div className="text-sm text-green-600 mb-1">
+                      <div key={match.id} className="p-3 bg-primary/5 rounded-lg">
+                        <div className="text-sm text-primary/70 mb-1">
                           {match.tournament} - {format(new Date(match.date), "dd/MM/yyyy")}
                         </div>
-                        <div className="text-green-800">
+                        <div className="text-primary">
                           {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
                         </div>
-                        <div className="text-sm text-green-600">
+                        <div className="text-sm text-primary/70">
                           Vincitore: {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
                         </div>
                       </div>
@@ -310,30 +310,30 @@ export const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="players" className="space-y-6">
-          <Card className="border-green-200">
+          <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle className="text-green-800">Gestione Giocatori</CardTitle>
+              <CardTitle className="text-primary">Gestione Giocatori</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {players.length === 0 ? (
-                  <p className="text-green-600 text-center py-8">Nessun giocatore registrato</p>
+                  <p className="text-primary/70 text-center py-8">Nessun giocatore registrato</p>
                 ) : (
                   <div className="space-y-2">
                     {players.map((player) => (
-                      <div key={player.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <div key={player.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className="text-xl">{getCountryFlag(player.nationality)}</span>
                           <div>
-                            <div className="font-semibold text-green-800">
+                            <div className="font-semibold text-primary">
                               {player.firstName} {player.lastName}
                             </div>
-                            <div className="text-sm text-green-600">
+                            <div className="text-sm text-primary/70">
                               {player.nationality} • {player.points.toLocaleString()} punti
                             </div>
                           </div>
                         </div>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {format(new Date(player.birthDate), "dd/MM/yyyy")}
                         </Badge>
                       </div>
@@ -346,38 +346,38 @@ export const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="matches" className="space-y-6">
-          <Card className="border-green-200">
+          <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle className="text-green-800">Storico Partite</CardTitle>
+              <CardTitle className="text-primary">Storico Partite</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {matches.length === 0 ? (
-                  <p className="text-green-600 text-center py-8">Nessuna partita registrata</p>
+                  <p className="text-primary/70 text-center py-8">Nessuna partita registrata</p>
                 ) : (
                   <div className="space-y-3">
                     {matches.slice().reverse().map((match) => (
-                      <div key={match.id} className="p-4 border border-green-200 rounded-lg">
+                      <div key={match.id} className="p-4 border border-primary/20 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
-                          <div className="font-semibold text-green-800">{match.tournament}</div>
-                          <div className="text-sm text-green-600">
+                          <div className="font-semibold text-primary">{match.tournament}</div>
+                          <div className="text-sm text-primary/70">
                             {format(new Date(match.date), "PPP", { locale: it })}
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
-                            <span className="text-green-600">Giocatori: </span>
-                            <span className="text-green-800">
+                            <span className="text-primary/70">Giocatori: </span>
+                            <span className="text-primary">
                               {getPlayerName(match.player1Id)} vs {getPlayerName(match.player2Id)}
                             </span>
                           </div>
                           <div>
-                            <span className="text-green-600">Risultato: </span>
-                            <span className="text-green-800">{match.score}</span>
+                            <span className="text-primary/70">Risultato: </span>
+                            <span className="text-primary">{match.score}</span>
                           </div>
                           <div>
-                            <span className="text-green-600">Vincitore: </span>
-                            <span className="text-green-800">
+                            <span className="text-primary/70">Vincitore: </span>
+                            <span className="text-primary">
                               {getPlayerName(match.winnerId)} (+{match.pointsAwarded} pts)
                             </span>
                           </div>
@@ -392,15 +392,15 @@ export const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">
-          <Card className="border-green-200">
+          <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle className="text-green-800">Gestione Sistema</CardTitle>
+              <CardTitle className="text-primary">Gestione Sistema</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-green-200 rounded-lg">
+              <div className="flex items-center justify-between p-4 border border-primary/20 rounded-lg">
                 <div>
-                  <h4 className="font-semibold text-green-800">Ricalcola Classifiche</h4>
-                  <p className="text-sm text-green-600">Aggiorna i ranking di tutti i giocatori</p>
+                  <h4 className="font-semibold text-primary">Ricalcola Classifiche</h4>
+                  <p className="text-sm text-primary/70">Aggiorna i ranking di tutti i giocatori</p>
                 </div>
                 <Button onClick={recalculateRankings} variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
@@ -419,9 +419,9 @@ export const AdminDashboard = () => {
                 </Button>
               </div>
 
-              <div className="p-4 border border-green-200 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-2">Backup e Ripristino</h4>
-                <p className="text-sm text-green-600 mb-4">
+              <div className="p-4 border border-primary/20 rounded-lg">
+                <h4 className="font-semibold text-primary mb-2">Backup e Ripristino</h4>
+                <p className="text-sm text-primary/70 mb-4">
                   Esporta i dati per creare un backup o importa un backup precedente
                 </p>
                 <div className="flex gap-2">
