@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -154,12 +153,11 @@ export const MatchRegistration = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-green-800">Registrazione Partite</h2>
-          <p className="text-green-600">Registra i risultati e aggiorna automaticamente i punti ATP</p>
+          <h2 className="text-3xl font-bold text-primary">Registrazione Partite</h2>
+          <p className="text-primary/70">Registra i risultati e aggiorna automaticamente i punti ATP</p>
         </div>
         <Button 
           onClick={() => setShowForm(true)}
-          className="bg-green-600 hover:bg-green-700"
           disabled={players.length < 2}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -178,9 +176,9 @@ export const MatchRegistration = () => {
       )}
 
       {showForm && (
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="text-green-800">Registra Nuova Partita</CardTitle>
+            <CardTitle className="text-primary">Registra Nuova Partita</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -255,7 +253,7 @@ export const MatchRegistration = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                <Button type="submit">
                   Registra Partita
                 </Button>
                 <Button type="button" variant="outline" onClick={resetForm}>
@@ -268,13 +266,13 @@ export const MatchRegistration = () => {
       )}
 
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-green-800">Storico Partite</h3>
+        <h3 className="text-xl font-semibold text-primary">Storico Partite</h3>
         {matches.length === 0 ? (
-          <Card className="border-green-200">
+          <Card className="border-primary/20">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <CalendarIcon2 className="h-16 w-16 text-green-300 mb-4" />
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Nessuna partita registrata</h3>
-              <p className="text-green-600 text-center">
+              <CalendarIcon2 className="h-16 w-16 text-primary/30 mb-4" />
+              <h3 className="text-xl font-semibold text-primary mb-2">Nessuna partita registrata</h3>
+              <p className="text-primary/70 text-center">
                 Registra la prima partita per iniziare a vedere lo storico.
               </p>
             </CardContent>
@@ -282,10 +280,10 @@ export const MatchRegistration = () => {
         ) : (
           <div className="grid gap-4">
             {matches.slice().reverse().map((match) => (
-              <Card key={match.id} className="border-green-200">
+              <Card key={match.id} className="border-primary/20">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-green-600">
+                    <span className="text-sm text-primary/70">
                       {format(new Date(match.date), "PPP", { locale: it })}
                     </span>
                   </div>
@@ -294,26 +292,26 @@ export const MatchRegistration = () => {
                       <div className="text-center">
                         <div className="flex items-center gap-1">
                           {getCountryFlag(match.player1Id)}
-                          <span className={match.winnerId === match.player1Id ? 'font-bold text-green-800' : 'text-gray-600'}>
+                          <span className={match.winnerId === match.player1Id ? 'font-bold text-primary' : 'text-gray-600'}>
                             {getPlayerName(match.player1Id)}
                           </span>
                           {match.winnerId === match.player1Id && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
                       </div>
-                      <span className="text-lg font-mono bg-green-100 px-2 py-1 rounded">
+                      <span className="text-lg font-mono bg-primary/10 px-2 py-1 rounded">
                         {match.score}
                       </span>
                       <div className="text-center">
                         <div className="flex items-center gap-1">
                           {getCountryFlag(match.player2Id)}
-                          <span className={match.winnerId === match.player2Id ? 'font-bold text-green-800' : 'text-gray-600'}>
+                          <span className={match.winnerId === match.player2Id ? 'font-bold text-primary' : 'text-gray-600'}>
                             {getPlayerName(match.player2Id)}
                           </span>
                           {match.winnerId === match.player2Id && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
                       </div>
                     </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary">
                       +{match.pointsAwarded} pts
                     </Badge>
                   </div>

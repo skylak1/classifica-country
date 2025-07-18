@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,12 +156,11 @@ export const PlayerManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-green-800">Gestione Giocatori</h2>
-          <p className="text-green-600">Aggiungi e gestisci i giocatori del circuito</p>
+          <h2 className="text-3xl font-bold text-primary">Gestione Giocatori</h2>
+          <p className="text-primary/70">Aggiungi e gestisci i giocatori del circuito</p>
         </div>
         <Button 
           onClick={() => setShowForm(true)}
-          className="bg-green-600 hover:bg-green-700"
         >
           <UserPlus className="h-4 w-4 mr-2" />
           Nuovo Giocatore
@@ -168,9 +168,9 @@ export const PlayerManagement = () => {
       </div>
 
       {showForm && (
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="text-green-800">
+            <CardTitle className="text-primary">
               {editingPlayer ? 'Modifica Giocatore' : 'Nuovo Giocatore'}
             </CardTitle>
           </CardHeader>
@@ -227,7 +227,7 @@ export const PlayerManagement = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                <Button type="submit">
                   {editingPlayer ? 'Salva Modifiche' : 'Aggiungi Giocatore'}
                 </Button>
                 <Button type="button" variant="outline" onClick={resetForm}>
@@ -241,35 +241,35 @@ export const PlayerManagement = () => {
 
       <div className="grid gap-4">
         {players.length === 0 ? (
-          <Card className="border-green-200">
+          <Card className="border-primary/20">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <UserPlus className="h-16 w-16 text-green-300 mb-4" />
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Nessun giocatore registrato</h3>
-              <p className="text-green-600 text-center">
+              <UserPlus className="h-16 w-16 text-primary/30 mb-4" />
+              <h3 className="text-xl font-semibold text-primary mb-2">Nessun giocatore registrato</h3>
+              <p className="text-primary/70 text-center">
                 Clicca su "Nuovo Giocatore" per iniziare ad aggiungere giocatori al sistema.
               </p>
             </CardContent>
           </Card>
         ) : (
           players.map((player) => (
-            <Card key={player.id} className="border-green-200 hover:shadow-lg transition-shadow">
+            <Card key={player.id} className="border-primary/20 hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="text-4xl">{getCountryFlag(player.nationality)}</div>
                     <div>
-                      <h3 className="text-xl font-bold text-green-800">
+                      <h3 className="text-xl font-bold text-primary">
                         {player.firstName} {player.lastName}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {player.nationality}
                         </Badge>
-                        <span className="text-green-600">
+                        <span className="text-primary/70">
                           {calculateAge(player.birthDate)} anni
                         </span>
-                        <span className="text-green-600">•</span>
-                        <span className="text-green-600">
+                        <span className="text-primary/70">•</span>
+                        <span className="text-primary/70">
                           {player.points.toLocaleString()} punti ATP
                         </span>
                       </div>
