@@ -187,12 +187,6 @@ export const AdminDashboard = () => {
           <h2 className="text-3xl font-bold text-primary">Dashboard Amministrativa</h2>
           <p className="text-primary/70">Gestisci e monitora tutto il sistema di ranking</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={recalculateRankings}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Ricalcola
-          </Button>
-        </div>
       </div>
 
       {/* Statistics Cards */}
