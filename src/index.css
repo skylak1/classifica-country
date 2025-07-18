@@ -106,6 +106,10 @@ All colors MUST be HSL.
     background: linear-gradient(135deg, hsl(30 31% 55%) 0%, hsl(30 41% 65%) 100%);
   }
   
+  .tennis-gradient-subtle {
+    background: linear-gradient(135deg, hsl(30 31% 55% / 0.08) 0%, hsl(30 41% 65% / 0.12) 100%);
+  }
+  
   .court-pattern {
     background-image: 
       repeating-linear-gradient(
@@ -115,6 +119,48 @@ All colors MUST be HSL.
         hsla(30, 31%, 55%, 0.1) 35px,
         hsla(30, 31%, 55%, 0.1) 36px
       );
+  }
+  
+  .ranking-card {
+    @apply bg-gradient-to-br from-background to-muted/30;
+    @apply border border-primary/15;
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .ranking-card:hover {
+    @apply shadow-[0_12px_40px_rgb(0,0,0,0.08)] scale-[1.02];
+    @apply border-primary/25;
+  }
+  
+  .ranking-header {
+    @apply bg-gradient-to-r from-primary/5 via-primary/8 to-primary/5;
+    @apply border-b border-primary/10;
+  }
+  
+  .player-row {
+    @apply transition-all duration-200 ease-out;
+    @apply border-b border-muted/30;
+  }
+  
+  .player-row:hover {
+    @apply bg-gradient-to-r from-primary/3 via-primary/5 to-primary/3;
+    @apply shadow-[inset_0_1px_0_hsl(var(--primary)/0.1)];
+    @apply transform translate-x-1;
+  }
+  
+  .rank-badge {
+    @apply bg-gradient-to-br from-primary/15 to-primary/25;
+    @apply text-primary font-bold;
+    @apply border border-primary/20;
+    @apply shadow-sm;
+  }
+  
+  .points-badge {
+    @apply bg-gradient-to-br from-secondary/15 to-secondary/25;
+    @apply text-secondary-foreground font-semibold;
+    @apply border border-secondary/20;
+    @apply shadow-sm;
   }
 }
 
@@ -130,6 +176,14 @@ All colors MUST be HSL.
   
   .animate-bounce-subtle {
     animation: bounceSubtle 2s infinite;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
   }
 }
 
@@ -163,6 +217,26 @@ All colors MUST be HSL.
   50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 

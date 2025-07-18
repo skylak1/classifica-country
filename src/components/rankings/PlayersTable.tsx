@@ -46,66 +46,74 @@ export const PlayersTable = ({
   if (players.length === 0) return null;
 
   return (
-    <Card className="border-primary/20">
-      <CardHeader className="pb-4">
+    <Card className="ranking-card animate-scale-in">
+      <CardHeader className="ranking-header pb-4">
         <CardTitle className="text-primary flex items-center justify-between">
-          <span>📊 Posizioni {startingRank}+</span>
+          <div className="flex items-center gap-2 text-lg font-bold">
+            <span className="text-2xl">📊</span>
+            <span>Posizioni {startingRank}+</span>
+          </div>
           {totalPages > 1 && (
-            <span className="text-sm font-normal text-primary/70">
+            <span className="text-sm font-normal text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
               Pagina {currentPage} di {totalPages}
             </span>
           )}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        <div className="overflow-hidden rounded-b-lg">
           <Table>
             <TableHeader>
-              <TableRow className="bg-primary/5">
-                <TableHead className="w-16 text-center font-semibold">Pos.</TableHead>
-                <TableHead className="font-semibold">Giocatore</TableHead>
-                <TableHead className="hidden sm:table-cell font-semibold">Nazionalità</TableHead>
-                <TableHead className="text-center font-semibold">Trend</TableHead>
-                <TableHead className="text-right font-semibold">Punti</TableHead>
+              <TableRow className="bg-gradient-to-r from-primary/8 via-primary/12 to-primary/8 border-none">
+                <TableHead className="w-16 text-center font-bold text-primary/90">Pos.</TableHead>
+                <TableHead className="font-bold text-primary/90">Giocatore</TableHead>
+                <TableHead className="hidden sm:table-cell font-bold text-primary/90">Nazionalità</TableHead>
+                <TableHead className="text-center font-bold text-primary/90">Trend</TableHead>
+                <TableHead className="text-right font-bold text-primary/90">Punti</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {players.map((player, index) => (
                 <TableRow 
                   key={player.id} 
-                  className="hover:bg-primary/5 transition-colors"
+                  className="player-row group"
+                  style={{ animationDelay: `${index * 30}ms` }}
                 >
-                  <TableCell className="text-center font-semibold text-primary">
-                    {startingRank + index}
+                  <TableCell className="text-center py-4">
+                    <div className="rank-badge rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                      {startingRank + index}
+                    </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-primary">
+                  <TableCell className="py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
                         {player.first_name} {player.last_name}
                       </span>
-                      <span className="sm:hidden text-sm">
+                      <span className="sm:hidden text-lg">
                         {getCountryFlag(player.nationality)}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <div className="flex items-center gap-2">
-                      <span>{getCountryFlag(player.nationality)}</span>
-                      <span className="text-primary/70">{player.nationality}</span>
+                  <TableCell className="hidden sm:table-cell py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{getCountryFlag(player.nationality)}</span>
+                      <span className="text-muted-foreground font-medium">{player.nationality}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center py-4">
                     <div className="flex justify-center">
-                      {getTrendIcon(player.trend)}
+                      <div className="p-1 rounded-full bg-muted/50">
+                        {getTrendIcon(player.trend)}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right py-4">
                     <div className="flex flex-col items-end gap-1">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold">
+                      <Badge className="points-badge text-sm px-3 py-1">
                         {player.points.toLocaleString()}
                       </Badge>
                       {player.previous_rank && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground font-medium">
                           Era #{player.previous_rank}
                         </span>
                       )}
@@ -119,8 +127,8 @@ export const PlayersTable = ({
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10">
-            <div className="text-sm text-primary/70">
+          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-muted/20 to-muted/30 border-t border-primary/10">
+            <div className="text-sm text-muted-foreground font-medium">
               Mostrando {players.length} di {totalPages * 20} giocatori
             </div>
             <div className="flex items-center gap-2">
@@ -129,6 +137,7 @@ export const PlayersTable = ({
                 size="sm"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                className="shadow-sm hover:shadow-md transition-all"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Precedente
@@ -152,7 +161,7 @@ export const PlayersTable = ({
                       variant={currentPage === pageNum ? "default" : "outline"}
                       size="sm"
                       onClick={() => onPageChange(pageNum)}
-                      className="w-8 h-8 p-0"
+                      className="w-8 h-8 p-0 shadow-sm hover:shadow-md transition-all"
                     >
                       {pageNum}
                     </Button>
@@ -164,6 +173,7 @@ export const PlayersTable = ({
                 size="sm"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                className="shadow-sm hover:shadow-md transition-all"
               >
                 Successivo
                 <ChevronRight className="h-4 w-4" />
