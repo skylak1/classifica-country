@@ -5,15 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Plus, Trophy, Calendar as CalendarIcon2 } from "lucide-react";
+import { Plus, Trophy, Calendar as CalendarIcon2 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface Player {
   id: string;
@@ -32,8 +29,6 @@ interface Match {
   winnerId: string;
   score: string;
   date: string;
-  tournament: string;
-  level: string;
   pointsAwarded: number;
 }
 
@@ -46,37 +41,8 @@ export const MatchRegistration = () => {
     player2Id: '',
     winnerId: '',
     score: '',
-    date: undefined as Date | undefined,
-    tournament: '',
-    level: ''
+    date: ''
   });
-
-  const tournamentLevels = [
-    { value: 'grand-slam', label: 'Grand Slam', points: [2000, 1200, 720, 360, 180, 90, 45, 10] },
-    { value: 'masters-1000', label: 'Masters 1000', points: [1000, 600, 360, 180, 90, 45, 25, 10] },
-    { value: 'atp-500', label: 'ATP 500', points: [500, 300, 180, 90, 45, 20, 12, 6] },
-    { value: 'atp-250', label: 'ATP 250', points: [250, 150, 90, 45, 20, 12, 6, 3] },
-    { value: 'challenger', label: 'Challenger', points: [80, 48, 29, 15, 7, 3, 1, 0] },
-    { value: 'futures', label: 'Futures', points: [18, 12, 6, 3, 1, 0, 0, 0] }
-  ];
-
-  const calculatePoints = (level: string, round: string) => {
-    const levelData = tournamentLevels.find(t => t.value === level);
-    if (!levelData) return 0;
-
-    const roundIndex = {
-      'winner': 0,
-      'final': 1,
-      'semifinal': 2,
-      'quarterfinal': 3,
-      'round-16': 4,
-      'round-32': 5,
-      'round-64': 6,
-      'round-128': 7
-    }[round] || 0;
-
-    return levelData.points[roundIndex] || 0;
-  };
 
   const resetForm = () => {
     setFormData({
@@ -84,9 +50,7 @@ export const MatchRegistration = () => {
       player2Id: '',
       winnerId: '',
       score: '',
-      date: undefined,
-      tournament: '',
-      level: ''
+      date: ''
     });
     setShowForm(false);
   };
@@ -95,7 +59,7 @@ export const MatchRegistration = () => {
     e.preventDefault();
     
     if (!formData.player1Id || !formData.player2Id || !formData.winnerId || 
-        !formData.score || !formData.date || !formData.tournament || !formData.level) {
+        !formData.score || !formData.date) {
       toast({
         title: "Errore",
         description: "Tutti i campi sono obbligatori",
@@ -122,13 +86,8 @@ export const MatchRegistration = () => {
       return;
     }
 
-    // Determine round based on score patterns (simplified logic)
-    let round = 'round-32'; // default
-    if (formData.tournament.toLowerCase().includes('final')) round = 'final';
-    else if (formData.tournament.toLowerCase().includes('semifinal')) round = 'semifinal';
-    else if (formData.tournament.toLowerCase().includes('quarterfinal')) round = 'quarterfinal';
-
-    const pointsAwarded = calculatePoints(formData.level, round);
+    // Punti fissi per semplicità
+    const pointsAwarded = 250;
 
     const newMatch: Match = {
       id: Date.now().toString(),
@@ -136,9 +95,7 @@ export const MatchRegistration = () => {
       player2Id: formData.player2Id,
       winnerId: formData.winnerId,
       score: formData.score,
-      date: format(formData.date, 'yyyy-MM-dd'),
-      tournament: formData.tournament,
-      level: formData.level,
+      date: formData.date,
       pointsAwarded
     };
 
@@ -191,24 +148,6 @@ export const MatchRegistration = () => {
       'Giappone': '🇯🇵'
     };
     return flags[player.nationality] || '🏳️';
-  };
-
-  const getTournamentLevelBadge = (level: string) => {
-    const levelData = tournamentLevels.find(t => t.value === level);
-    const colors = {
-      'grand-slam': 'bg-purple-100 text-purple-800',
-      'masters-1000': 'bg-red-100 text-red-800',
-      'atp-500': 'bg-blue-100 text-blue-800',
-      'atp-250': 'bg-green-100 text-green-800',
-      'challenger': 'bg-orange-100 text-orange-800',
-      'futures': 'bg-gray-100 text-gray-800'
-    };
-    
-    return (
-      <Badge className={colors[level as keyof typeof colors] || 'bg-gray-100 text-gray-800'}>
-        {levelData?.label || level}
-      </Badge>
-    );
   };
 
   return (
@@ -278,7 +217,7 @@ export const MatchRegistration = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label>Vincitore</Label>
                   <Select value={formData.winnerId} onValueChange={(value) => setFormData({...formData, winnerId: value})}>
@@ -303,63 +242,15 @@ export const MatchRegistration = () => {
                     placeholder="es. 6-4, 6-2"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label>Data Partita</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.date ? (
-                          format(formData.date, "PPP", { locale: it })
-                        ) : (
-                          <span>Seleziona data</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.date}
-                        onSelect={(date) => setFormData({...formData, date})}
-                        disabled={(date) => date > new Date()}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label htmlFor="tournament">Nome Torneo</Label>
+                  <Label htmlFor="date">Data Partita</Label>
                   <Input
-                    id="tournament"
-                    value={formData.tournament}
-                    onChange={(e) => setFormData({...formData, tournament: e.target.value})}
-                    placeholder="es. Roland Garros"
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    max={new Date().toISOString().split('T')[0]}
                   />
-                </div>
-                <div>
-                  <Label>Livello Torneo</Label>
-                  <Select value={formData.level} onValueChange={(value) => setFormData({...formData, level: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona livello" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tournamentLevels.map((level) => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label} (Max {level.points[0]} pts)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
 
@@ -394,10 +285,6 @@ export const MatchRegistration = () => {
               <Card key={match.id} className="border-green-200">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {getTournamentLevelBadge(match.level)}
-                      <span className="font-semibold text-green-800">{match.tournament}</span>
-                    </div>
                     <span className="text-sm text-green-600">
                       {format(new Date(match.date), "PPP", { locale: it })}
                     </span>

@@ -1,19 +1,13 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Plus, Trash2, Edit2, UserPlus } from "lucide-react";
-import { format } from "date-fns";
-import { it } from "date-fns/locale";
+import { Plus, Trash2, Edit2, UserPlus } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface Player {
   id: string;
@@ -33,7 +27,7 @@ export const PlayerManagement = () => {
     firstName: '',
     lastName: '',
     nationality: '',
-    birthDate: undefined as Date | undefined
+    birthDate: ''
   });
 
   const nationalities = [
@@ -48,7 +42,7 @@ export const PlayerManagement = () => {
       firstName: '',
       lastName: '',
       nationality: '',
-      birthDate: undefined
+      birthDate: ''
     });
     setEditingPlayer(null);
     setShowForm(false);
@@ -70,7 +64,7 @@ export const PlayerManagement = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       nationality: formData.nationality,
-      birthDate: format(formData.birthDate, 'yyyy-MM-dd'),
+      birthDate: formData.birthDate,
       points: editingPlayer?.points || 0
     };
 
@@ -105,7 +99,7 @@ export const PlayerManagement = () => {
       firstName: player.firstName,
       lastName: player.lastName,
       nationality: player.nationality,
-      birthDate: new Date(player.birthDate)
+      birthDate: player.birthDate
     });
     setShowForm(true);
   };
@@ -220,37 +214,15 @@ export const PlayerManagement = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>Data di Nascita</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.birthDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.birthDate ? (
-                          format(formData.birthDate, "PPP", { locale: it })
-                        ) : (
-                          <span>Seleziona data</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.birthDate}
-                        onSelect={(date) => setFormData({...formData, birthDate: date})}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1950-01-01")
-                        }
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="birthDate">Data di Nascita</Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
+                    max={new Date().toISOString().split('T')[0]}
+                    min="1950-01-01"
+                  />
                 </div>
               </div>
 
