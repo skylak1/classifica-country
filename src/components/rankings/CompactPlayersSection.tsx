@@ -1,7 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Player } from "@/hooks/usePlayers";
 
@@ -35,71 +34,46 @@ export const CompactPlayersSection = ({ players }: CompactPlayersSectionProps) =
   if (players.length === 0) return null;
 
   return (
-    <Card className="ranking-card animate-scale-in">
-      <CardHeader className="ranking-header pb-4">
-        <CardTitle className="text-primary flex items-center gap-2 text-lg font-bold">
-          <span className="text-2xl">🥇</span>
-          <span>Posizioni 4-10</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-hidden rounded-b-lg">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gradient-to-r from-primary/8 via-primary/12 to-primary/8 border-none">
-                <TableHead className="w-16 text-center font-bold text-primary/90">Pos.</TableHead>
-                <TableHead className="font-bold text-primary/90">Giocatore</TableHead>
-                <TableHead className="hidden sm:table-cell font-bold text-primary/90">Nazionalità</TableHead>
-                <TableHead className="text-center font-bold text-primary/90">Trend</TableHead>
-                <TableHead className="text-right font-bold text-primary/90">Punti</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {players.map((player, index) => (
-                <TableRow 
-                  key={player.id} 
-                  className="player-row group"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <TableCell className="text-center py-4">
-                    <div className="rank-badge rounded-full w-8 h-8 flex items-center justify-center text-sm">
-                      {player.rank}
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold text-primary mb-3">🥇 Posizioni 4-10</h3>
+      <div className="grid gap-2">
+        {players.map((player) => (
+          <Card key={player.id} className="border-primary/20 hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
+                      <span className="text-sm font-bold text-primary">{player.rank}</span>
                     </div>
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <div className="flex items-center gap-3">
-                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-primary truncate">
                         {player.first_name} {player.last_name}
-                      </span>
-                      <span className="sm:hidden text-lg">
-                        {getCountryFlag(player.nationality)}
-                      </span>
+                      </h4>
+                      <span className="text-sm">{getCountryFlag(player.nationality)}</span>
+                      {getTrendIcon(player.trend)}
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell py-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{getCountryFlag(player.nationality)}</span>
-                      <span className="text-muted-foreground font-medium">{player.nationality}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center py-4">
-                    <div className="flex justify-center">
-                      <div className="p-1 rounded-full bg-muted/50">
-                        {getTrendIcon(player.trend)}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right py-4">
-                    <Badge className="points-badge text-sm px-3 py-1">
-                      {player.points.toLocaleString()}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+                    <p className="text-xs text-primary/60 truncate">{player.nationality}</p>
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 text-right">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary text-sm px-2 py-1 font-semibold">
+                    {player.points.toLocaleString()}
+                  </Badge>
+                  {player.previous_rank && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Era #{player.previous_rank}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 };
