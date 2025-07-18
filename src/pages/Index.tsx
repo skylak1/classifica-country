@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Users, Calendar, BarChart3, Shield, LogOut } from "lucide-react";
+import { Trophy, Users, Calendar, BarChart3, Shield, LogOut, Lock } from "lucide-react";
 import { PlayerManagement } from "@/components/PlayerManagement";
 import { MatchRegistration } from "@/components/MatchRegistration";
 import { Rankings } from "@/components/Rankings";
@@ -10,7 +10,7 @@ import { AdminDashboard } from "@/components/AdminDashboard";
 import { PasswordProtection } from "@/components/PasswordProtection";
 import { useToast } from "@/hooks/use-toast";
 
-type ActiveTab = 'rankings' | 'players' | 'matches' | 'admin';
+type ActiveTab = 'rankings' | 'players' | 'matches' | 'admin' | 'login';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('rankings');
@@ -26,16 +26,13 @@ const Index = () => {
   const protectedSections: ActiveTab[] = ['players', 'matches', 'admin'];
 
   const handleTabChange = (tab: ActiveTab) => {
-    if (protectedSections.includes(tab) && !isAuthenticated) {
-      // Non cambiare tab, mostra il componente di protezione
-      setActiveTab(tab);
-    } else {
-      setActiveTab(tab);
-    }
+    setActiveTab(tab);
   };
 
   const handleAuthenticated = () => {
     setIsAuthenticated(true);
+    // Dopo l'autenticazione, torna alla classifica
+    setActiveTab('rankings');
   };
 
   const handleLogout = () => {
@@ -58,14 +55,20 @@ const Index = () => {
   };
 
   const renderContent = () => {
-    // Se la sezione è protetta e l'utente non è autenticato, mostra il componente di protezione
-    if (protectedSections.includes(activeTab) && !isAuthenticated) {
+    // Se è la sezione login, mostra sempre il componente di protezione
+    if (activeTab === 'login') {
       return (
         <PasswordProtection
           onAuthenticated={handleAuthenticated}
-          sectionName={getSectionName(activeTab)}
+          sectionName="Admin"
         />
       );
+    }
+
+    // Se la sezione è protetta e l'utente non è autenticato, reindirizza alla classifica
+    if (protectedSections.includes(activeTab) && !isAuthenticated) {
+      setActiveTab('rankings');
+      return <Rankings />;
     }
 
     switch(activeTab) {
@@ -109,40 +112,36 @@ const Index = () => {
                 <Trophy className="h-4 w-4 mr-2" />
                 Classifica
               </Button>
-              <Button
-                variant={activeTab === 'players' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('players')}
-                className="relative"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Giocatori
-                {protectedSections.includes('players') && (
-                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
-                )}
-              </Button>
-              <Button
-                variant={activeTab === 'matches' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('matches')}
-                className="relative"
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Partite
-                {protectedSections.includes('matches') && (
-                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
-                )}
-              </Button>
-              <Button
-                variant={activeTab === 'admin' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('admin')}
-                className="relative"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Admin
-                {protectedSections.includes('admin') && (
-                  <Shield className="h-3 w-3 ml-1 text-amber-600" />
-                )}
-              </Button>
+              
+              {/* Mostra i pulsanti protetti solo se autenticato */}
               {isAuthenticated && (
+                <>
+                  <Button
+                    variant={activeTab === 'players' ? 'default' : 'ghost'}
+                    onClick={() => handleTabChange('players')}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Giocatori
+                  </Button>
+                  <Button
+                    variant={activeTab === 'matches' ? 'default' : 'ghost'}
+                    onClick={() => handleTabChange('matches')}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Partite
+                  </Button>
+                  <Button
+                    variant={activeTab === 'admin' ? 'default' : 'ghost'}
+                    onClick={() => handleTabChange('admin')}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Admin
+                  </Button>
+                </>
+              )}
+              
+              {/* Pulsante di accesso/logout */}
+              {isAuthenticated ? (
                 <Button
                   variant="outline"
                   onClick={handleLogout}
@@ -150,6 +149,16 @@ const Index = () => {
                   title="Logout dalle sezioni protette"
                 >
                   <LogOut className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  onClick={() => handleTabChange('login')}
+                  className="ml-2 bg-amber-600 hover:bg-amber-700"
+                  title="Accedi alle sezioni amministrative"
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Accesso Admin
                 </Button>
               )}
             </div>
@@ -169,43 +178,42 @@ const Index = () => {
             <Trophy className="h-4 w-4 mr-1" />
             Classifica
           </Button>
-          <Button
-            size="sm"
-            variant={activeTab === 'players' ? 'default' : 'ghost'}
-            onClick={() => handleTabChange('players')}
-            className="whitespace-nowrap relative"
-          >
-            <Users className="h-4 w-4 mr-1" />
-            Giocatori
-            {protectedSections.includes('players') && (
-              <Shield className="h-3 w-3 ml-1 text-amber-600" />
-            )}
-          </Button>
-          <Button
-            size="sm"
-            variant={activeTab === 'matches' ? 'default' : 'ghost'}
-            onClick={() => handleTabChange('matches')}
-            className="whitespace-nowrap relative"
-          >
-            <Calendar className="h-4 w-4 mr-1" />
-            Partite
-            {protectedSections.includes('matches') && (
-              <Shield className="h-3 w-3 ml-1 text-amber-600" />
-            )}
-          </Button>
-          <Button
-            size="sm"
-            variant={activeTab === 'admin' ? 'default' : 'ghost'}
-            onClick={() => handleTabChange('admin')}
-            className="whitespace-nowrap relative"
-          >
-            <Shield className="h-4 w-4 mr-1" />
-            Admin
-            {protectedSections.includes('admin') && (
-              <Shield className="h-3 w-3 ml-1 text-amber-600" />
-            )}
-          </Button>
+          
+          {/* Mostra i pulsanti protetti solo se autenticato */}
           {isAuthenticated && (
+            <>
+              <Button
+                size="sm"
+                variant={activeTab === 'players' ? 'default' : 'ghost'}
+                onClick={() => handleTabChange('players')}
+                className="whitespace-nowrap"
+              >
+                <Users className="h-4 w-4 mr-1" />
+                Giocatori
+              </Button>
+              <Button
+                size="sm"
+                variant={activeTab === 'matches' ? 'default' : 'ghost'}
+                onClick={() => handleTabChange('matches')}
+                className="whitespace-nowrap"
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                Partite
+              </Button>
+              <Button
+                size="sm"
+                variant={activeTab === 'admin' ? 'default' : 'ghost'}
+                onClick={() => handleTabChange('admin')}
+                className="whitespace-nowrap"
+              >
+                <Shield className="h-4 w-4 mr-1" />
+                Admin
+              </Button>
+            </>
+          )}
+          
+          {/* Pulsante di accesso/logout mobile */}
+          {isAuthenticated ? (
             <Button
               size="sm"
               variant="outline"
@@ -214,6 +222,17 @@ const Index = () => {
               title="Logout dalle sezioni protette"
             >
               <LogOut className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => handleTabChange('login')}
+              className="whitespace-nowrap bg-amber-600 hover:bg-amber-700"
+              title="Accedi alle sezioni amministrative"
+            >
+              <Lock className="h-4 w-4 mr-1" />
+              Admin
             </Button>
           )}
         </div>
