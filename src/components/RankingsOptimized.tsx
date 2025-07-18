@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 20;
 export const RankingsOptimized = () => {
   const { players, loading } = usePlayers();
   const [searchTerm, setSearchTerm] = useState("");
-  const [jumpToPosition, setJumpToPosition] = useState("");
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [rankedPlayers, setRankedPlayers] = useState<(Player & { rank: number; trend: 'up' | 'down' | 'same' })[]>([]);
 
@@ -60,15 +60,6 @@ export const RankingsOptimized = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleJumpToPosition = () => {
-    const position = parseInt(jumpToPosition);
-    if (position && position > 10 && position <= filteredPlayers.length) {
-      const adjustedPosition = position - 10; // Sottrai i primi 10 giocatori
-      const targetPage = Math.ceil(adjustedPosition / ITEMS_PER_PAGE);
-      setCurrentPage(targetPage);
-      setJumpToPosition("");
-    }
-  };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -116,11 +107,11 @@ export const RankingsOptimized = () => {
         <p className="text-primary/70">Classifica aggiornata in tempo reale</p>
       </div>
 
-      {/* Search and Navigation Controls */}
+      {/* Search Controls */}
       <Card className="border-primary/20">
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="relative flex-1 w-full">
+          <div className="flex flex-col gap-4">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary/60 h-4 w-4" />
               <Input
                 placeholder="Cerca giocatore per nome o nazionalità..."
@@ -129,26 +120,12 @@ export const RankingsOptimized = () => {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2 items-center w-full sm:w-auto">
-              <Input
-                type="number"
-                placeholder="Posizione #"
-                value={jumpToPosition}
-                onChange={(e) => setJumpToPosition(e.target.value)}
-                className="w-24"
-                min="1"
-                max={filteredPlayers.length}
-              />
-              <Button onClick={handleJumpToPosition} variant="outline" size="sm">
-                Vai
-              </Button>
-            </div>
+            {searchTerm && (
+              <p className="text-sm text-primary/70">
+                Trovati {filteredPlayers.length} giocatori per "{searchTerm}"
+              </p>
+            )}
           </div>
-          {searchTerm && (
-            <p className="text-sm text-primary/70 mt-2">
-              Trovati {filteredPlayers.length} giocatori per "{searchTerm}"
-            </p>
-          )}
         </CardContent>
       </Card>
 

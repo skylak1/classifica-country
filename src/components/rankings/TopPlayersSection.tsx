@@ -90,11 +90,6 @@ export const TopPlayersSection = ({ players }: TopPlayersSectionProps) => {
                 <Badge variant="secondary" className="bg-primary/10 text-primary text-lg md:text-xl px-3 md:px-4 py-1 md:py-2 font-bold">
                   {player.points.toLocaleString()} pts
                 </Badge>
-                {player.previous_rank && (
-                  <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
-                    Era #{player.previous_rank}
-                  </p>
-                )}
               </div>
             </div>
           </CardContent>
