@@ -140,7 +140,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      adjust_positions_between: {
+        Args: {
+          band_num: number
+          start_pos: number
+          end_pos: number
+          position_shift: number
+        }
+        Returns: undefined
+      }
+      make_space_in_band: {
+        Args: { band_num: number; insert_position: number }
+        Returns: undefined
+      }
+      reorganize_band_after_removal: {
+        Args: { band_num: number; removed_position: number }
+        Returns: undefined
+      }
+      shift_positions_in_band: {
+        Args: {
+          band_num: number
+          start_pos: number
+          end_pos: number
+          shift_amount: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

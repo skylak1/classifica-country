@@ -157,15 +157,8 @@ export const useMatches = () => {
 
   // Funzione per aggiustare le posizioni tra due punti
   const adjustPositionsBetween = async (bandNumber: number, startPos: number, endPos: number, shift: number) => {
-    const { error } = await supabase.rpc('adjust_positions_between', {
-      band_num: bandNumber,
-      start_pos: startPos,
-      end_pos: endPos,
-      position_shift: shift
-    });
-    
-    if (error) {
-      // Fallback: aggiorna manualmente
+    try {
+      // Aggiorna direttamente senza RPC
       const { data: playersToUpdate } = await supabase
         .from("players")
         .select("id, position_in_band")
@@ -181,6 +174,8 @@ export const useMatches = () => {
             .eq("id", player.id);
         }
       }
+    } catch (error) {
+      console.error("Error adjusting positions:", error);
     }
   };
 

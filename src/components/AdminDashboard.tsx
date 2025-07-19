@@ -22,6 +22,7 @@ import { it } from "date-fns/locale";
 import { usePlayers, Player } from "@/hooks/usePlayers";
 import { useMatches } from "@/hooks/useMatches";
 import { BandManagement } from "./BandManagement";
+import { PositionManagement } from "./PositionManagement";
 
 export const AdminDashboard = () => {
   const { players, loading: playersLoading, deleteAllPlayers, addPlayer, updatePlayer } = usePlayers();
@@ -256,11 +257,12 @@ export const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Panoramica</TabsTrigger>
           <TabsTrigger value="players">Giocatori</TabsTrigger>
           <TabsTrigger value="matches">Partite</TabsTrigger>
           <TabsTrigger value="bands">Fasce</TabsTrigger>
+          <TabsTrigger value="positions">Posizioni</TabsTrigger>
           <TabsTrigger value="settings">Impostazioni</TabsTrigger>
         </TabsList>
 
@@ -461,6 +463,10 @@ export const AdminDashboard = () => {
 
         <TabsContent value="bands" className="space-y-6">
           <BandManagement />
+        </TabsContent>
+
+        <TabsContent value="positions" className="space-y-6">
+          <PositionManagement />
         </TabsContent>
       </Tabs>
     </div>

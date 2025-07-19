@@ -44,37 +44,75 @@ export const PositionManagement = () => {
       if (oldBand === newBandNumber) {
         if (oldPosition === newPositionInBand) return; // Nessun cambio
 
-        // Sposta gli altri giocatori
+        // Sposta gli altri giocatori manualmente
         if (oldPosition < newPositionInBand) {
           // Sposta verso il basso - gli altri salgono
-          await supabase.rpc('shift_positions_in_band', {
-            band_num: newBandNumber,
-            start_pos: oldPosition + 1,
-            end_pos: newPositionInBand,
-            shift_amount: -1
-          });
+          const { data: playersToShift } = await supabase
+            .from('players')
+            .select('id, position_in_band')
+            .eq('band_number', newBandNumber)
+            .gte('position_in_band', oldPosition + 1)
+            .lte('position_in_band', newPositionInBand);
+
+          if (playersToShift) {
+            for (const player of playersToShift) {
+              await supabase
+                .from('players')
+                .update({ position_in_band: player.position_in_band - 1 })
+                .eq('id', player.id);
+            }
+          }
         } else {
           // Sposta verso l'alto - gli altri scendono
-          await supabase.rpc('shift_positions_in_band', {
-            band_num: newBandNumber,
-            start_pos: newPositionInBand,
-            end_pos: oldPosition - 1,
-            shift_amount: 1
-          });
+          const { data: playersToShift } = await supabase
+            .from('players')
+            .select('id, position_in_band')
+            .eq('band_number', newBandNumber)
+            .gte('position_in_band', newPositionInBand)
+            .lte('position_in_band', oldPosition - 1);
+
+          if (playersToShift) {
+            for (const player of playersToShift) {
+              await supabase
+                .from('players')
+                .update({ position_in_band: player.position_in_band + 1 })
+                .eq('id', player.id);
+            }
+          }
         }
       } else {
         // Cambio di fascia
-        // Riorganizza la fascia vecchia
-        await supabase.rpc('reorganize_band_after_removal', {
-          band_num: oldBand,
-          removed_position: oldPosition
-        });
+        // Riorganizza la fascia vecchia (sposta tutti in su)
+        const { data: oldBandPlayers } = await supabase
+          .from('players')
+          .select('id, position_in_band')
+          .eq('band_number', oldBand)
+          .gt('position_in_band', oldPosition);
 
-        // Fa spazio nella fascia nuova
-        await supabase.rpc('make_space_in_band', {
-          band_num: newBandNumber,
-          insert_position: newPositionInBand
-        });
+        if (oldBandPlayers) {
+          for (const player of oldBandPlayers) {
+            await supabase
+              .from('players')
+              .update({ position_in_band: player.position_in_band - 1 })
+              .eq('id', player.id);
+          }
+        }
+
+        // Fa spazio nella fascia nuova (sposta tutti in giù)
+        const { data: newBandPlayers } = await supabase
+          .from('players')
+          .select('id, position_in_band')
+          .eq('band_number', newBandNumber)
+          .gte('position_in_band', newPositionInBand);
+
+        if (newBandPlayers) {
+          for (const player of newBandPlayers) {
+            await supabase
+              .from('players')
+              .update({ position_in_band: player.position_in_band + 1 })
+              .eq('id', player.id);
+          }
+        }
       }
 
       // Aggiorna il giocatore
