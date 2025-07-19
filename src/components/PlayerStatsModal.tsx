@@ -45,11 +45,8 @@ export const PlayerStatsModal = ({ player, open, onOpenChange }: PlayerStatsModa
     return flags[nationality] || '🏳️';
   };
 
-  const getOpponentName = (match: Match, playerId: string) => {
-    // Per ora mostreremo solo gli ID, ma si potrebbe fare una query per ottenere i nomi
-    return match.player1_id === playerId ? 
-      `Giocatore ${match.player2_id.slice(-4)}` : 
-      `Giocatore ${match.player1_id.slice(-4)}`;
+  const getOpponentName = (match: Match) => {
+    return match.opponent_name || 'Avversario sconosciuto';
   };
 
   const formatDate = (dateString: string) => {
@@ -187,7 +184,7 @@ export const PlayerStatsModal = ({ player, open, onOpenChange }: PlayerStatsModa
                         }`} />
                         <div className="min-w-0 flex-1">
                           <p className="font-medium text-sm md:text-base truncate">
-                            vs {getOpponentName(match, player.id)}
+                            vs {getOpponentName(match)}
                           </p>
                           <p className="text-xs md:text-sm text-muted-foreground">
                             {formatDate(match.match_date)}

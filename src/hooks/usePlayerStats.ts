@@ -24,6 +24,7 @@ export interface Match {
   score: string;
   match_date: string;
   points_awarded: number;
+  opponent_name?: string;
 }
 
 export const usePlayerStats = (playerId: string | null) => {
@@ -130,9 +131,29 @@ export const usePlayerStats = (playerId: string | null) => {
         if (error) throw error;
 
         const playerMatches = data || [];
+        
+        // Recupera i nomi degli avversari
+        const matchesWithOpponentNames = await Promise.all(
+          playerMatches.map(async (match) => {
+            const opponentId = match.player1_id === playerId ? match.player2_id : match.player1_id;
+            const { data: opponentData } = await supabase
+              .from("players")
+              .select("first_name, last_name")
+              .eq("id", opponentId)
+              .single();
+            
+            return {
+              ...match,
+              opponent_name: opponentData 
+                ? `${opponentData.first_name} ${opponentData.last_name}`
+                : `Giocatore ${opponentId.slice(-4)}`
+            };
+          })
+        );
+        
         const playerStats = calculateStats(playerMatches, playerId);
         
-        setMatches(playerMatches);
+        setMatches(matchesWithOpponentNames);
         setStats(playerStats);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Errore nel caricamento delle statistiche");
