@@ -18,7 +18,9 @@ export const PlayerManagement = () => {
     last_name: '',
     nationality: '',
     birth_date: '',
-    points: 0
+    points: 0,
+    band_number: 4,
+    position_in_band: 1
   });
 
   const nationalities = [
@@ -32,7 +34,9 @@ export const PlayerManagement = () => {
       last_name: '',
       nationality: '',
       birth_date: '',
-      points: 0
+      points: 0,
+      band_number: 4,
+      position_in_band: 1
     });
     setShowForm(false);
     setEditingPlayer(null);
@@ -71,7 +75,9 @@ export const PlayerManagement = () => {
       last_name: player.last_name,
       nationality: player.nationality,
       birth_date: player.birth_date,
-      points: player.points
+      points: player.points,
+      band_number: player.band_number,
+      position_in_band: player.position_in_band
     });
     setShowForm(true);
   };

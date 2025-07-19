@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      band_settings: {
+        Row: {
+          band_name: string
+          band_number: number
+          color: string
+          created_at: string
+          id: string
+          max_players: number
+          updated_at: string
+        }
+        Insert: {
+          band_name: string
+          band_number: number
+          color: string
+          created_at?: string
+          id?: string
+          max_players?: number
+          updated_at?: string
+        }
+        Update: {
+          band_name?: string
+          band_number?: number
+          color?: string
+          created_at?: string
+          id?: string
+          max_players?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           created_at: string
@@ -71,6 +101,7 @@ export type Database = {
       }
       players: {
         Row: {
+          band_number: number | null
           birth_date: string
           created_at: string
           first_name: string
@@ -78,10 +109,12 @@ export type Database = {
           last_name: string
           nationality: string
           points: number
+          position_in_band: number | null
           previous_rank: number | null
           updated_at: string
         }
         Insert: {
+          band_number?: number | null
           birth_date: string
           created_at?: string
           first_name: string
@@ -89,10 +122,12 @@ export type Database = {
           last_name: string
           nationality: string
           points?: number
+          position_in_band?: number | null
           previous_rank?: number | null
           updated_at?: string
         }
         Update: {
+          band_number?: number | null
           birth_date?: string
           created_at?: string
           first_name?: string
@@ -100,6 +135,7 @@ export type Database = {
           last_name?: string
           nationality?: string
           points?: number
+          position_in_band?: number | null
           previous_rank?: number | null
           updated_at?: string
         }
