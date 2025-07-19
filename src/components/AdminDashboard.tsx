@@ -19,7 +19,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayers, Player } from "@/hooks/usePlayers";
 import { useMatches } from "@/hooks/useMatches";
 import { BandManagement } from "./BandManagement";
 
@@ -32,8 +32,8 @@ export const AdminDashboard = () => {
   const stats = {
     totalPlayers: players.length,
     totalMatches: matches.length,
-    totalPoints: players.reduce((sum, player) => sum + player.points, 0),
-    averagePoints: players.length > 0 ? Math.round(players.reduce((sum, player) => sum + player.points, 0) / players.length) : 0
+    activeBands: [...new Set(players.map(p => p.band_number))].length,
+    averagePlayersPerBand: players.length > 0 ? Math.round(players.length / 4) : 0
   };
 
   const exportData = () => {
@@ -128,26 +128,32 @@ export const AdminDashboard = () => {
 
   const recalculateRankings = async () => {
     try {
-      // Ordina i giocatori per punti e aggiorna i previous_rank
-      const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+      // Riorganizza le posizioni nelle fasce
+      const playersByBand = players.reduce((acc, player) => {
+        if (!acc[player.band_number]) acc[player.band_number] = [];
+        acc[player.band_number].push(player);
+        return acc;
+      }, {} as Record<number, Player[]>);
       
-      for (let i = 0; i < sortedPlayers.length; i++) {
-        const player = sortedPlayers[i];
-        const newRank = i + 1;
-        
-        if (player.previous_rank !== newRank) {
-          await updatePlayer(player.id, { previous_rank: newRank });
+      // Riordina le posizioni in ogni fascia
+      for (const bandNumber in playersByBand) {
+        const bandPlayers = playersByBand[parseInt(bandNumber)];
+        for (let i = 0; i < bandPlayers.length; i++) {
+          const player = bandPlayers[i];
+          if (player.position_in_band !== i + 1) {
+            await updatePlayer(player.id, { position_in_band: i + 1 });
+          }
         }
       }
       
       toast({
-        title: "Classifiche ricalcolate",
-        description: "I ranking sono stati aggiornati in base ai punti attuali"
+        title: "Posizioni riorganizzate",
+        description: "Le posizioni nelle fasce sono state riordinate"
       });
     } catch (error) {
       toast({
         title: "Errore",
-        description: "Impossibile ricalcolare le classifiche",
+        description: "Impossibile riorganizzare le posizioni",
         variant: "destructive"
       });
     }
@@ -227,8 +233,8 @@ export const AdminDashboard = () => {
                 <Trophy className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-primary/70">Punti Totali</p>
-                <p className="text-2xl font-bold text-primary">{stats.totalPoints.toLocaleString()}</p>
+                <p className="text-sm text-primary/70">Fasce Attive</p>
+                <p className="text-2xl font-bold text-primary">{stats.activeBands}</p>
               </div>
             </div>
           </CardContent>
@@ -241,8 +247,8 @@ export const AdminDashboard = () => {
                 <BarChart3 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-primary/70">Media Punti</p>
-                <p className="text-2xl font-bold text-primary">{stats.averagePoints.toLocaleString()}</p>
+                <p className="text-sm text-primary/70">Media per Fascia</p>
+                <p className="text-2xl font-bold text-primary">{stats.averagePlayersPerBand}</p>
               </div>
             </div>
           </CardContent>
@@ -332,9 +338,9 @@ export const AdminDashboard = () => {
                              <div className="font-semibold text-primary">
                                {player.first_name} {player.last_name}
                              </div>
-                             <div className="text-sm text-primary/70">
-                               {player.nationality} • {player.points.toLocaleString()} punti
-                             </div>
+                              <div className="text-sm text-primary/70">
+                                {player.nationality} • Fascia {player.band_number}
+                              </div>
                            </div>
                          </div>
                          <Badge variant="secondary" className="bg-primary/10 text-primary">
@@ -403,12 +409,12 @@ export const AdminDashboard = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 border border-primary/20 rounded-lg">
                 <div>
-                  <h4 className="font-semibold text-primary">Ricalcola Classifiche</h4>
-                  <p className="text-sm text-primary/70">Aggiorna i ranking di tutti i giocatori</p>
+                  <h4 className="font-semibold text-primary">Riorganizza Posizioni</h4>
+                  <p className="text-sm text-primary/70">Riordina le posizioni nelle fasce</p>
                 </div>
                 <Button onClick={recalculateRankings} variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Ricalcola
+                  Riorganizza
                 </Button>
               </div>
 

@@ -60,7 +60,7 @@ export const PlayerStatsModal = ({ player, open, onOpenChange }: PlayerStatsModa
       <span>{getCountryFlag(player.nationality)}</span>
       <span className="font-bold">{player.first_name} {player.last_name}</span>
       <Badge variant="outline" className="text-sm md:text-lg">
-        {player.points.toLocaleString()} pts
+        Fascia {player.band_number}
       </Badge>
     </div>
   );

@@ -177,7 +177,6 @@ export const BandRankings = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">{player.points} pt</p>
                         <p className="text-xs text-muted-foreground">
                           Pos. {player.position_in_band}
                         </p>

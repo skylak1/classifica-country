@@ -8,8 +8,6 @@ export interface Player {
   last_name: string;
   nationality: string;
   birth_date: string;
-  points: number;
-  previous_rank?: number;
   band_number: number;
   position_in_band: number;
   created_at?: string;

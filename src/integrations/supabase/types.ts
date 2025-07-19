@@ -108,9 +108,7 @@ export type Database = {
           id: string
           last_name: string
           nationality: string
-          points: number
           position_in_band: number | null
-          previous_rank: number | null
           updated_at: string
         }
         Insert: {
@@ -121,9 +119,7 @@ export type Database = {
           id?: string
           last_name: string
           nationality: string
-          points?: number
           position_in_band?: number | null
-          previous_rank?: number | null
           updated_at?: string
         }
         Update: {
@@ -134,9 +130,7 @@ export type Database = {
           id?: string
           last_name?: string
           nationality?: string
-          points?: number
           position_in_band?: number | null
-          previous_rank?: number | null
           updated_at?: string
         }
         Relationships: []

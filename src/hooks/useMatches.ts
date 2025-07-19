@@ -49,40 +49,13 @@ export const useMatches = () => {
 
       if (matchError) throw matchError;
 
-      // Then update the winner's points and previous rank
-      const { data: currentWinner, error: winnerFetchError } = await supabase
-        .from('players')
-        .select('points')
-        .eq('id', matchData.winner_id)
-        .single();
-
-      if (winnerFetchError) throw winnerFetchError;
-
-      // Get current rank before updating points
-      const { data: allPlayers, error: playersError } = await supabase
-        .from('players')
-        .select('id, points')
-        .order('points', { ascending: false });
-
-      if (playersError) throw playersError;
-
-      const currentRank = allPlayers.findIndex(p => p.id === matchData.winner_id) + 1;
-
-      // Update winner's points and previous rank
-      const { error: updateError } = await supabase
-        .from('players')
-        .update({
-          points: currentWinner.points + matchData.points_awarded,
-          previous_rank: currentRank
-        })
-        .eq('id', matchData.winner_id);
-
-      if (updateError) throw updateError;
-
-      await fetchMatches(); // Refresh the list
+      // La registrazione della partita è completata
+      // Non aggiorniamo più punti o rank automaticamente
+      
+      await fetchMatches();
       toast({
         title: "Successo",
-        description: `Partita registrata! ${matchData.points_awarded} punti assegnati al vincitore.`
+        description: "Partita registrata con successo"
       });
 
       return newMatch;
