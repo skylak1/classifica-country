@@ -184,24 +184,28 @@ All colors MUST be HSL.
   background: hsl(var(--secondary));
 }
 
-/* Hide Lovable badge */
-[data-lovable-badge] {
+/* Hide Lovable badge - comprehensive selectors */
+[data-lovable-badge],
+.lovable-badge,
+iframe[title*="lovable"],
+iframe[src*="lovable"],
+[class*="lovable"],
+[id*="lovable"],
+div[style*="position: fixed"][style*="bottom"][style*="right"] > a[href*="lovable"],
+div[style*="position: fixed"][style*="z-index: 999999"],
+div[style*="position: fixed"][style*="bottom: 20px"][style*="right: 20px"],
+a[href*="lovable.dev"],
+a[href*="lovable.app"],
+button[aria-label*="Edit"],
+button[title*="Edit"],
+[data-testid*="lovable"],
+.fixed.bottom-5.right-5,
+.fixed.bottom-4.right-4,
+div[class*="fixed"][class*="bottom"][class*="right"] {
   display: none !important;
-}
-
-.lovable-badge {
-  display: none !important;
-}
-
-iframe[title*="lovable"] {
-  display: none !important;
-}
-
-/* Alternative selectors for the Lovable badge */
-[class*="lovable"] {
-  display: none !important;
-}
-
-div[style*="position: fixed"][style*="bottom"][style*="right"] > a[href*="lovable"] {
-  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
 }
