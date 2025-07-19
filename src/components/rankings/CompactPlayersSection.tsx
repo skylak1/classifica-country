@@ -6,9 +6,10 @@ import { Player } from "@/hooks/usePlayers";
 
 interface CompactPlayersSectionProps {
   players: (Player & { rank: number; trend: 'up' | 'down' | 'same' })[];
+  onPlayerClick?: (player: Player) => void;
 }
 
-export const CompactPlayersSection = ({ players }: CompactPlayersSectionProps) => {
+export const CompactPlayersSection = ({ players, onPlayerClick }: CompactPlayersSectionProps) => {
   const getTrendIcon = (trend: 'up' | 'down' | 'same') => {
     if (trend === 'up') return <TrendingUp className="h-3 w-3 text-primary" />;
     if (trend === 'down') return <TrendingDown className="h-3 w-3 text-red-500" />;
@@ -38,7 +39,11 @@ export const CompactPlayersSection = ({ players }: CompactPlayersSectionProps) =
       <h3 className="text-lg font-semibold text-primary mb-3">🥇 Posizioni 4-10</h3>
       <div className="grid gap-2">
         {players.map((player) => (
-          <Card key={player.id} className="border-primary/20 hover:shadow-md transition-shadow">
+          <Card 
+            key={player.id} 
+            className="border-primary/20 hover:shadow-md transition-all cursor-pointer hover:scale-[1.02]"
+            onClick={() => onPlayerClick?.(player)}
+          >
             <CardContent className="p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -12,6 +12,7 @@ interface PlayersTableProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   startingRank: number;
+  onPlayerClick?: (player: Player) => void;
 }
 
 export const PlayersTable = ({ 
@@ -19,7 +20,8 @@ export const PlayersTable = ({
   currentPage, 
   totalPages, 
   onPageChange, 
-  startingRank 
+  startingRank,
+  onPlayerClick 
 }: PlayersTableProps) => {
   const getTrendIcon = (trend: 'up' | 'down' | 'same') => {
     if (trend === 'up') return <TrendingUp className="h-3 w-3 text-primary" />;
@@ -57,7 +59,11 @@ export const PlayersTable = ({
       </div>
       <div className="grid gap-2">
         {players.map((player, index) => (
-          <Card key={player.id} className="border-primary/20 hover:shadow-md transition-shadow">
+          <Card 
+            key={player.id} 
+            className="border-primary/20 hover:shadow-md transition-all cursor-pointer hover:scale-[1.01]"
+            onClick={() => onPlayerClick?.(player)}
+          >
             <CardContent className="p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -9,12 +9,15 @@ import { usePlayers, Player } from "@/hooks/usePlayers";
 import { TopPlayersSection } from "./rankings/TopPlayersSection";
 import { CompactPlayersSection } from "./rankings/CompactPlayersSection";
 import { PlayersTable } from "./rankings/PlayersTable";
+import { PlayerStatsModal } from "./PlayerStatsModal";
 
 const ITEMS_PER_PAGE = 20;
 
 export const RankingsOptimized = () => {
   const { players, loading } = usePlayers();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);
   const [rankedPlayers, setRankedPlayers] = useState<(Player & { rank: number; trend: 'up' | 'down' | 'same' })[]>([]);
@@ -64,6 +67,11 @@ export const RankingsOptimized = () => {
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1); // Reset alla prima pagina quando si cerca
+  };
+
+  const handlePlayerClick = (player: Player) => {
+    setSelectedPlayer(player);
+    setIsStatsModalOpen(true);
   };
 
   if (loading) {
@@ -131,12 +139,19 @@ export const RankingsOptimized = () => {
 
       {/* Top 3 Players */}
       {topPlayers.length > 0 && (
-        <TopPlayersSection players={topPlayers} isSearching={!!searchTerm} />
+        <TopPlayersSection 
+          players={topPlayers} 
+          isSearching={!!searchTerm} 
+          onPlayerClick={handlePlayerClick}
+        />
       )}
 
       {/* Positions 4-10 - Card compatte */}
       {midTierPlayers.length > 0 && (
-        <CompactPlayersSection players={midTierPlayers} />
+        <CompactPlayersSection 
+          players={midTierPlayers} 
+          onPlayerClick={handlePlayerClick}
+        />
       )}
 
       {/* Positions 11+ - Tabella paginata */}
@@ -147,6 +162,7 @@ export const RankingsOptimized = () => {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
           startingRank={11 + (currentPage - 1) * ITEMS_PER_PAGE}
+          onPlayerClick={handlePlayerClick}
         />
       )}
 
@@ -176,6 +192,13 @@ export const RankingsOptimized = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Player Stats Modal */}
+      <PlayerStatsModal
+        player={selectedPlayer}
+        open={isStatsModalOpen}
+        onOpenChange={setIsStatsModalOpen}
+      />
     </div>
   );
 };
