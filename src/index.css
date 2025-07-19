@@ -183,3 +183,25 @@ All colors MUST be HSL.
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--secondary));
 }
+
+/* Hide Lovable badge */
+[data-lovable-badge] {
+  display: none !important;
+}
+
+.lovable-badge {
+  display: none !important;
+}
+
+iframe[title*="lovable"] {
+  display: none !important;
+}
+
+/* Alternative selectors for the Lovable badge */
+[class*="lovable"] {
+  display: none !important;
+}
+
+div[style*="position: fixed"][style*="bottom"][style*="right"] > a[href*="lovable"] {
+  display: none !important;
+}
