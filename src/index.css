@@ -184,45 +184,10 @@ All colors MUST be HSL.
   background: hsl(var(--secondary));
 }
 
-/* Hide Lovable badge - ultra comprehensive approach */
+/* Hide Lovable badge - targeted approach */
 [data-lovable-badge],
 .lovable-badge,
-iframe[title*="lovable"],
-iframe[src*="lovable"],
-[class*="lovable"],
-[id*="lovable"],
-div[style*="position: fixed"][style*="bottom"][style*="right"],
-div[style*="position: fixed"][style*="z-index: 999999"],
-div[style*="position: fixed"][style*="bottom: 20px"],
-div[style*="position: fixed"][style*="right: 20px"],
-a[href*="lovable"],
-button[aria-label*="Edit"],
-button[title*="Edit"],
-[data-testid*="lovable"],
-.fixed.bottom-5.right-5,
-.fixed.bottom-4.right-4,
-div[class*="fixed"][class*="bottom"][class*="right"],
-*[style*="position: fixed"]:has(a[href*="lovable"]),
-*:has(> *[href*="lovable"]) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-}
-
-/* Additional overrides for any persistent elements */
-body *[style*="position: fixed"] {
-  display: none !important;
-}
-
-/* Target any text containing "Edit" or "Lovable" */
-*:contains("Edit with"):not(input):not(textarea),
-*:contains("Lovable"):not(input):not(textarea) {
+a[href*="lovable.dev"],
+a[href*="lovable.app"] {
   display: none !important;
 }
