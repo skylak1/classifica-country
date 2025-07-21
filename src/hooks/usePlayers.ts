@@ -8,8 +8,8 @@ export interface Player {
   last_name: string;
   nationality: string;
   birth_date: string;
-  points: number;
-  previous_rank?: number;
+  band_number: number;
+  position_in_band: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -23,7 +23,8 @@ export const usePlayers = () => {
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .order('points', { ascending: false });
+        .order('band_number', { ascending: true })
+        .order('position_in_band', { ascending: true });
 
       if (error) throw error;
       setPlayers(data || []);

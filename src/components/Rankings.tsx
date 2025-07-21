@@ -1,6 +1,6 @@
 
-import { RankingsOptimized } from "./RankingsOptimized";
+import { BandRankings } from "./BandRankings";
 
 export const Rankings = () => {
-  return <RankingsOptimized />;
+  return <BandRankings />;
 };
