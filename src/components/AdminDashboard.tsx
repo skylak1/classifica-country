@@ -19,10 +19,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { usePlayers, Player } from "@/hooks/usePlayers";
+import { usePlayers } from "@/hooks/usePlayers";
 import { useMatches } from "@/hooks/useMatches";
-import { BandManagement } from "./BandManagement";
-import { PositionManagement } from "./PositionManagement";
 
 export const AdminDashboard = () => {
   const { players, loading: playersLoading, deleteAllPlayers, addPlayer, updatePlayer } = usePlayers();
@@ -33,8 +31,8 @@ export const AdminDashboard = () => {
   const stats = {
     totalPlayers: players.length,
     totalMatches: matches.length,
-    activeBands: [...new Set(players.map(p => p.band_number))].length,
-    averagePlayersPerBand: players.length > 0 ? Math.round(players.length / 4) : 0
+    totalPoints: players.reduce((sum, player) => sum + player.points, 0),
+    averagePoints: players.length > 0 ? Math.round(players.reduce((sum, player) => sum + player.points, 0) / players.length) : 0
   };
 
   const exportData = () => {
@@ -129,32 +127,26 @@ export const AdminDashboard = () => {
 
   const recalculateRankings = async () => {
     try {
-      // Riorganizza le posizioni nelle fasce
-      const playersByBand = players.reduce((acc, player) => {
-        if (!acc[player.band_number]) acc[player.band_number] = [];
-        acc[player.band_number].push(player);
-        return acc;
-      }, {} as Record<number, Player[]>);
+      // Ordina i giocatori per punti e aggiorna i previous_rank
+      const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
       
-      // Riordina le posizioni in ogni fascia
-      for (const bandNumber in playersByBand) {
-        const bandPlayers = playersByBand[parseInt(bandNumber)];
-        for (let i = 0; i < bandPlayers.length; i++) {
-          const player = bandPlayers[i];
-          if (player.position_in_band !== i + 1) {
-            await updatePlayer(player.id, { position_in_band: i + 1 });
-          }
+      for (let i = 0; i < sortedPlayers.length; i++) {
+        const player = sortedPlayers[i];
+        const newRank = i + 1;
+        
+        if (player.previous_rank !== newRank) {
+          await updatePlayer(player.id, { previous_rank: newRank });
         }
       }
       
       toast({
-        title: "Posizioni riorganizzate",
-        description: "Le posizioni nelle fasce sono state riordinate"
+        title: "Classifiche ricalcolate",
+        description: "I ranking sono stati aggiornati in base ai punti attuali"
       });
     } catch (error) {
       toast({
         title: "Errore",
-        description: "Impossibile riorganizzare le posizioni",
+        description: "Impossibile ricalcolare le classifiche",
         variant: "destructive"
       });
     }
@@ -234,8 +226,8 @@ export const AdminDashboard = () => {
                 <Trophy className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-primary/70">Fasce Attive</p>
-                <p className="text-2xl font-bold text-primary">{stats.activeBands}</p>
+                <p className="text-sm text-primary/70">Punti Totali</p>
+                <p className="text-2xl font-bold text-primary">{stats.totalPoints.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -248,8 +240,8 @@ export const AdminDashboard = () => {
                 <BarChart3 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-primary/70">Media per Fascia</p>
-                <p className="text-2xl font-bold text-primary">{stats.averagePlayersPerBand}</p>
+                <p className="text-sm text-primary/70">Media Punti</p>
+                <p className="text-2xl font-bold text-primary">{stats.averagePoints.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -257,12 +249,10 @@ export const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Panoramica</TabsTrigger>
           <TabsTrigger value="players">Giocatori</TabsTrigger>
           <TabsTrigger value="matches">Partite</TabsTrigger>
-          <TabsTrigger value="bands">Fasce</TabsTrigger>
-          <TabsTrigger value="positions">Posizioni</TabsTrigger>
           <TabsTrigger value="settings">Impostazioni</TabsTrigger>
         </TabsList>
 
@@ -340,9 +330,9 @@ export const AdminDashboard = () => {
                              <div className="font-semibold text-primary">
                                {player.first_name} {player.last_name}
                              </div>
-                              <div className="text-sm text-primary/70">
-                                {player.nationality} • Fascia {player.band_number}
-                              </div>
+                             <div className="text-sm text-primary/70">
+                               {player.nationality} • {player.points.toLocaleString()} punti
+                             </div>
                            </div>
                          </div>
                          <Badge variant="secondary" className="bg-primary/10 text-primary">
@@ -411,12 +401,12 @@ export const AdminDashboard = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 border border-primary/20 rounded-lg">
                 <div>
-                  <h4 className="font-semibold text-primary">Riorganizza Posizioni</h4>
-                  <p className="text-sm text-primary/70">Riordina le posizioni nelle fasce</p>
+                  <h4 className="font-semibold text-primary">Ricalcola Classifiche</h4>
+                  <p className="text-sm text-primary/70">Aggiorna i ranking di tutti i giocatori</p>
                 </div>
                 <Button onClick={recalculateRankings} variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Riorganizza
+                  Ricalcola
                 </Button>
               </div>
 
@@ -459,14 +449,6 @@ export const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="bands" className="space-y-6">
-          <BandManagement />
-        </TabsContent>
-
-        <TabsContent value="positions" className="space-y-6">
-          <PositionManagement />
         </TabsContent>
       </Tabs>
     </div>

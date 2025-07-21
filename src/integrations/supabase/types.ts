@@ -14,36 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      band_settings: {
-        Row: {
-          band_name: string
-          band_number: number
-          color: string
-          created_at: string
-          id: string
-          max_players: number
-          updated_at: string
-        }
-        Insert: {
-          band_name: string
-          band_number: number
-          color: string
-          created_at?: string
-          id?: string
-          max_players?: number
-          updated_at?: string
-        }
-        Update: {
-          band_name?: string
-          band_number?: number
-          color?: string
-          created_at?: string
-          id?: string
-          max_players?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       matches: {
         Row: {
           created_at: string
@@ -101,36 +71,36 @@ export type Database = {
       }
       players: {
         Row: {
-          band_number: number | null
           birth_date: string
           created_at: string
           first_name: string
           id: string
           last_name: string
           nationality: string
-          position_in_band: number | null
+          points: number
+          previous_rank: number | null
           updated_at: string
         }
         Insert: {
-          band_number?: number | null
           birth_date: string
           created_at?: string
           first_name: string
           id?: string
           last_name: string
           nationality: string
-          position_in_band?: number | null
+          points?: number
+          previous_rank?: number | null
           updated_at?: string
         }
         Update: {
-          band_number?: number | null
           birth_date?: string
           created_at?: string
           first_name?: string
           id?: string
           last_name?: string
           nationality?: string
-          position_in_band?: number | null
+          points?: number
+          previous_rank?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -140,32 +110,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      adjust_positions_between: {
-        Args: {
-          band_num: number
-          start_pos: number
-          end_pos: number
-          position_shift: number
-        }
-        Returns: undefined
-      }
-      make_space_in_band: {
-        Args: { band_num: number; insert_position: number }
-        Returns: undefined
-      }
-      reorganize_band_after_removal: {
-        Args: { band_num: number; removed_position: number }
-        Returns: undefined
-      }
-      shift_positions_in_band: {
-        Args: {
-          band_num: number
-          start_pos: number
-          end_pos: number
-          shift_amount: number
-        }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

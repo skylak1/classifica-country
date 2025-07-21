@@ -18,8 +18,7 @@ export const PlayerManagement = () => {
     last_name: '',
     nationality: '',
     birth_date: '',
-    band_number: 4,
-    position_in_band: 1
+    points: 0
   });
 
   const nationalities = [
@@ -33,8 +32,7 @@ export const PlayerManagement = () => {
       last_name: '',
       nationality: '',
       birth_date: '',
-      band_number: 4,
-      position_in_band: 1
+      points: 0
     });
     setShowForm(false);
     setEditingPlayer(null);
@@ -73,8 +71,7 @@ export const PlayerManagement = () => {
       last_name: player.last_name,
       nationality: player.nationality,
       birth_date: player.birth_date,
-      band_number: player.band_number,
-      position_in_band: player.position_in_band
+      points: player.points
     });
     setShowForm(true);
   };
@@ -242,7 +239,7 @@ export const PlayerManagement = () => {
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                       <Badge variant="secondary" className="bg-primary/10 text-primary text-sm md:text-lg px-2 md:px-3 py-1 font-bold">
-                        Fascia {player.band_number} - Pos. {player.position_in_band}
+                        {player.points.toLocaleString()} pts
                       </Badge>
                       <div className="flex gap-2">
                         <Button
