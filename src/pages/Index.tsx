@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,60 +8,52 @@ import { Rankings } from "@/components/Rankings";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { PasswordProtection } from "@/components/PasswordProtection";
 import { useToast } from "@/hooks/use-toast";
-
 type ActiveTab = 'rankings' | 'players' | 'matches' | 'admin' | 'login';
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('rankings');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     // Controlla se l'utente è già autenticato
     const authStatus = localStorage.getItem("tennis_admin_auth");
     setIsAuthenticated(authStatus === "true");
   }, []);
-
   const protectedSections: ActiveTab[] = ['players', 'matches', 'admin'];
-
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
   };
-
   const handleAuthenticated = () => {
     setIsAuthenticated(true);
     // Dopo l'autenticazione, torna alla classifica
     setActiveTab('rankings');
   };
-
   const handleLogout = () => {
     localStorage.removeItem("tennis_admin_auth");
     setIsAuthenticated(false);
     setActiveTab('rankings');
     toast({
       title: "Logout effettuato",
-      description: "Sei stato disconnesso dalle sezioni protette",
+      description: "Sei stato disconnesso dalle sezioni protette"
     });
   };
-
   const getSectionName = (tab: ActiveTab) => {
-    switch(tab) {
-      case 'players': return 'Giocatori';
-      case 'matches': return 'Partite';
-      case 'admin': return 'Admin';
-      default: return '';
+    switch (tab) {
+      case 'players':
+        return 'Giocatori';
+      case 'matches':
+        return 'Partite';
+      case 'admin':
+        return 'Admin';
+      default:
+        return '';
     }
   };
-
   const renderContent = () => {
     // Se è la sezione login, mostra sempre il componente di protezione
     if (activeTab === 'login') {
-      return (
-        <PasswordProtection
-          onAuthenticated={handleAuthenticated}
-          sectionName="Admin"
-        />
-      );
+      return <PasswordProtection onAuthenticated={handleAuthenticated} sectionName="Admin" />;
     }
 
     // Se la sezione è protetta e l'utente non è autenticato, reindirizza alla classifica
@@ -70,8 +61,7 @@ const Index = () => {
       setActiveTab('rankings');
       return <Rankings />;
     }
-
-    switch(activeTab) {
+    switch (activeTab) {
       case 'rankings':
         return <Rankings />;
       case 'players':
@@ -84,83 +74,49 @@ const Index = () => {
         return <Rankings />;
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-primary/20 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-2 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="relative">
-                <img 
-                  src="/lovable-uploads/3bc61267-ab37-409e-816f-cd8142967548.png" 
-                  alt="Tennis Country Club Alcamo" 
-                  className="h-10 md:h-14 w-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-white/50"
-                />
+                <img src="/lovable-uploads/3bc61267-ab37-409e-816f-cd8142967548.png" alt="Tennis Country Club Alcamo" className="h-10 md:h-14 w-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border-2 border-white/50" />
               </div>
               <div>
                 <h1 className="text-lg md:text-2xl font-bold text-primary">Tennis Rankings</h1>
-                <p className="text-xs md:text-sm text-primary/70 hidden sm:block">Sistema di Classifica Country Club</p>
+                <p className="text-xs md:text-sm text-primary/70 hidden sm:block">Sistema di Classifica Tennis Country Club Alcamo</p>
               </div>
             </div>
             <div className="hidden md:flex items-center gap-2">
-              <Button
-                variant={activeTab === 'rankings' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('rankings')}
-              >
+              <Button variant={activeTab === 'rankings' ? 'default' : 'ghost'} onClick={() => handleTabChange('rankings')}>
                 <Trophy className="h-4 w-4 mr-2" />
                 Classifica
               </Button>
               
               {/* Mostra i pulsanti protetti solo se autenticato */}
-              {isAuthenticated && (
-                <>
-                  <Button
-                    variant={activeTab === 'players' ? 'default' : 'ghost'}
-                    onClick={() => handleTabChange('players')}
-                  >
+              {isAuthenticated && <>
+                  <Button variant={activeTab === 'players' ? 'default' : 'ghost'} onClick={() => handleTabChange('players')}>
                     <Users className="h-4 w-4 mr-2" />
                     Giocatori
                   </Button>
-                  <Button
-                    variant={activeTab === 'matches' ? 'default' : 'ghost'}
-                    onClick={() => handleTabChange('matches')}
-                  >
+                  <Button variant={activeTab === 'matches' ? 'default' : 'ghost'} onClick={() => handleTabChange('matches')}>
                     <Calendar className="h-4 w-4 mr-2" />
                     Partite
                   </Button>
-                  <Button
-                    variant={activeTab === 'admin' ? 'default' : 'ghost'}
-                    onClick={() => handleTabChange('admin')}
-                  >
+                  <Button variant={activeTab === 'admin' ? 'default' : 'ghost'} onClick={() => handleTabChange('admin')}>
                     <Shield className="h-4 w-4 mr-2" />
                     Admin
                   </Button>
-                </>
-              )}
+                </>}
               
               {/* Pulsante di accesso/logout */}
-              {isAuthenticated ? (
-                <Button
-                  variant="outline"
-                  onClick={handleLogout}
-                  className="ml-2"
-                  title="Logout dalle sezioni protette"
-                >
+              {isAuthenticated ? <Button variant="outline" onClick={handleLogout} className="ml-2" title="Logout dalle sezioni protette">
                   <LogOut className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="default"
-                  onClick={() => handleTabChange('login')}
-                  className="ml-2 bg-amber-600 hover:bg-amber-700"
-                  title="Accedi alle sezioni amministrative"
-                >
+                </Button> : <Button variant="default" onClick={() => handleTabChange('login')} className="ml-2 bg-amber-600 hover:bg-amber-700" title="Accedi alle sezioni amministrative">
                   <Lock className="h-4 w-4 mr-2" />
                   Accesso Admin
-                </Button>
-              )}
+                </Button>}
             </div>
           </div>
         </div>
@@ -169,72 +125,34 @@ const Index = () => {
       {/* Mobile Navigation */}
       <div className="md:hidden bg-white border-b border-primary/20 px-4 py-3">
         <div className="flex gap-2 overflow-x-auto pb-1">
-          <Button
-            size="default"
-            variant={activeTab === 'rankings' ? 'default' : 'ghost'}
-            onClick={() => handleTabChange('rankings')}
-            className="whitespace-nowrap min-h-[44px] px-4 text-sm"
-          >
+          <Button size="default" variant={activeTab === 'rankings' ? 'default' : 'ghost'} onClick={() => handleTabChange('rankings')} className="whitespace-nowrap min-h-[44px] px-4 text-sm">
             <Trophy className="h-4 w-4 mr-2" />
             Classifica
           </Button>
           
           {/* Mostra i pulsanti protetti solo se autenticato */}
-          {isAuthenticated && (
-            <>
-              <Button
-                size="default"
-                variant={activeTab === 'players' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('players')}
-                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
-              >
+          {isAuthenticated && <>
+              <Button size="default" variant={activeTab === 'players' ? 'default' : 'ghost'} onClick={() => handleTabChange('players')} className="whitespace-nowrap min-h-[44px] px-4 text-sm">
                 <Users className="h-4 w-4 mr-2" />
                 Giocatori
               </Button>
-              <Button
-                size="default"
-                variant={activeTab === 'matches' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('matches')}
-                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
-              >
+              <Button size="default" variant={activeTab === 'matches' ? 'default' : 'ghost'} onClick={() => handleTabChange('matches')} className="whitespace-nowrap min-h-[44px] px-4 text-sm">
                 <Calendar className="h-4 w-4 mr-2" />
                 Partite
               </Button>
-              <Button
-                size="default"
-                variant={activeTab === 'admin' ? 'default' : 'ghost'}
-                onClick={() => handleTabChange('admin')}
-                className="whitespace-nowrap min-h-[44px] px-4 text-sm"
-              >
+              <Button size="default" variant={activeTab === 'admin' ? 'default' : 'ghost'} onClick={() => handleTabChange('admin')} className="whitespace-nowrap min-h-[44px] px-4 text-sm">
                 <Shield className="h-4 w-4 mr-2" />
                 Admin
               </Button>
-            </>
-          )}
+            </>}
           
           {/* Pulsante di accesso/logout mobile */}
-          {isAuthenticated ? (
-            <Button
-              size="default"
-              variant="outline"
-              onClick={handleLogout}
-              className="whitespace-nowrap min-h-[44px] px-4"
-              title="Logout dalle sezioni protette"
-            >
+          {isAuthenticated ? <Button size="default" variant="outline" onClick={handleLogout} className="whitespace-nowrap min-h-[44px] px-4" title="Logout dalle sezioni protette">
               <LogOut className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              size="default"
-              variant="default"
-              onClick={() => handleTabChange('login')}
-              className="whitespace-nowrap bg-amber-600 hover:bg-amber-700 min-h-[44px] px-4 text-sm"
-              title="Accedi alle sezioni amministrative"
-            >
+            </Button> : <Button size="default" variant="default" onClick={() => handleTabChange('login')} className="whitespace-nowrap bg-amber-600 hover:bg-amber-700 min-h-[44px] px-4 text-sm" title="Accedi alle sezioni amministrative">
               <Lock className="h-4 w-4 mr-2" />
               Admin
-            </Button>
-          )}
+            </Button>}
         </div>
       </div>
 
@@ -250,11 +168,9 @@ const Index = () => {
             <Trophy className="h-5 w-5" />
             <span className="font-semibold">Tennis Rankings</span>
           </div>
-          <p className="text-primary-foreground/80">Sistema di gestione classifiche tennis Country Club Alcamo</p>
+          <p className="text-primary-foreground/80">Sistema Classifica Tennis Country Club Alcamo</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;

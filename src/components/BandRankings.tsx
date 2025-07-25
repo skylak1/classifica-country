@@ -93,10 +93,8 @@ export const BandRankings = () => {
   }
   return <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Classifiche per Fasce</h1>
-        <p className="text-muted-foreground">
-          Sistema di classificazione a 4 fasce con posizioni specifiche
-        </p>
+        <h1 className="font-bold text-3xl text-[#b88f65]">Classifica Tennis Country Club Alcamo</h1>
+        
       </div>
 
       <div className="relative max-w-md mx-auto">
